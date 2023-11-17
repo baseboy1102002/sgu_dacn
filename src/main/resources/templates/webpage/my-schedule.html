@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/customstyled.css}">
+    <title>Lịch trình của tôi</title>
+
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #F1F6FF;
+      }
+    </style>
+  </head>
+  <body>
+    <!--  Header -->
+    <div th:replace="fragments/header"></div>
+    <!--  Header -->
+
+    <div class="container pt-4">
+
+      <!--   Alert   -->
+      <div th:if="${message != null}">
+        <div class="row">
+          <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
+      <!--   Alert   -->
+
+      <div class="row">
+        <div class="col-sm-0 col-md-0 col-lg-2 col-xl-2">
+          <h5>Hiển thị sự kiện theo</h5>
+          <nav class="nav nav-pills flex-column">
+            <button class="nav-link active text-start" data-bs-toggle="tab"
+              data-bs-target="#tab-list"><i
+                class="fa-solid fa-list"></i> Danh sách</button>
+            <button class="nav-link text-start" data-bs-toggle="tab"
+              data-bs-target="#tab-calendar"><i
+                class="fa-regular fa-calendar"></i> Lịch</button>
+          </nav>
+          <hr>
+          <button class="btn btn-primary w-100 mb-3" data-bs-toggle="collapse"
+                  data-bs-target="#filter-collapse">Lọc dữ liệu</button>
+          <div class="collapse" id="filter-collapse">
+            <h5>Phân loại theo</h5>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="radio" role="switch" id="all" name="radio_filter" value="all">
+              <label class="form-check-label" for="all">Tất cả</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="radio" role="switch" id="incoming" name="radio_filter" value="incoming">
+              <label class="form-check-label" for="incoming">Chưa diễn ra</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="radio" role="switch" id="past" name="radio_filter" value="past">
+              <label class="form-check-label" for="past">Đã diễn ra</label>
+            </div>
+            <div class="mt-2 mb-3 text-center">
+              <button id="button_filter" type="button" class="btn btn-sm btn-primary">Lọc</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10">
+          <div class="tab-content">
+            <div class="tab-pane active show fade" id="tab-list">
+              <div class="row g-4 row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3">
+                <th:block th:each="event: ${eventPageable}">
+                  <div class="col">
+                    <div class="card border-0 shadow">
+                      <div class="card-body">
+                        <h5 class="card-title text-line-2" th:text="${event.name}"></h5>
+                        <div class="d-flex justify-content-between">
+                          <h6 class="card-subtitle mb-2 text-muted" th:text="${event.date}"></h6>
+                          <h6 class="card-subtitle mb-2 text-muted" th:text="${event.startTime} + '-' + ${event.endTime}"></h6>
+                        </div>
+                        <p class="card-text text-line-3" th:text="${event.description}"></p>
+                        <div class="row">
+                          <div class="col-6">
+                            <a th:href="@{/event/my-event/{id}(id=${event.id})}" class="btn btn-outline-primary">Xem chi tiết</a>
+                          </div>
+                          <div class="col-6 text-end">
+                            <div sec:authorize="hasAuthority('STUDENT')">
+                              <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+                                <button type="button" class="btn btn-danger dismiss_btn">Hủy tham gia</button>
+                              </form>
+                            </div>
+                            <div sec:authorize="hasAuthority('TEACHER')">
+                              <a th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
+                            </div>
+                            <div sec:authorize="hasAuthority('ADMIN')">
+                              <a th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th:block>
+              </div>
+
+              <!--  MODAL  -->
+              <div th:replace="~{fragments/modal}"></div>
+              <!--  MODAL  -->
+
+              <nav class="mt-4">
+                <ul class="pagination justify-content-end" id="pagination"></ul>
+              </nav>
+              <form id="filterForm" th:action="@{/event/my-event}" method="get">
+                <input type="hidden" id="page" name="page" th:value="${page}">
+                <input type="hidden" id="timeType" name="timeType" th:value="${time}">
+              </form>
+            </div>
+
+            <div class="tab-pane fade" id="tab-calendar">
+              <div id="calendar">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    <script th:src="@{/webpage/plugins/twbsPagination/jquery.twbsPagination.min.js}"></script>
+    <script th:src="@{/webpage/plugins/fullCalendar/fullcalendar-6.1.9/dist/index.global.min.js}"></script>
+    <script th:inline="javascript">
+      let totalPage = [[${totalPage}]]
+      let currentPage = [[${page}]]
+      let array = [[${events}]]
+      let events_data = $.map(array, function (obj) {
+        let startTime = new Date(obj.date+' '+obj.startTime+' UTC+7').toISOString()
+        let endTime = new Date(obj.date+' '+obj.endTime+' UTC+7').toISOString()
+        let url = [[@{/event/}]] + obj.id
+        return {"id": obj.id, "title":obj.departmentCode+'.'+obj.roomCode, "start": startTime, "end": endTime, "url": url};
+      });
+
+      function getParentElement(element, parent) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(parent)) {
+                return element.parentElement;
+            }
+            element = element.parentElement;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          height: 600,
+          initialView: 'dayGridMonth',
+          windowResize: function(view) {
+            if ($(window).width() < 514){
+              let d = new Date()
+              let currentDate = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()
+              calendar.changeView("timeGridDay", currentDate)
+            } else {
+              calendar.changeView("dayGridMonth")
+            }
+          },
+          timeZone: 'local',
+          events: events_data,
+          eventDisplay: 'block',
+          displayEventEnd: true
+        });
+        calendar.render();
+
+        window.pagObj = $('#pagination').twbsPagination({
+          totalPages: totalPage,
+          visiblePages: 5,
+          startPage: currentPage,
+          onPageClick: function (event, page) {
+            if (currentPage != page) {
+                $('#page').val(page);
+                $('#filterForm').submit();
+            }
+          }
+        });
+
+        $('input[id=[[${timeType}]]]').prop('checked', true)
+
+        $(".dismiss_btn").each(function (index, element) {
+          $(element).on('click', function(e) {
+              let eventId = $(getParentElement(element, '.dismiss_form')).data('event-id')
+              $('#dismiss_modal').data('event-id', eventId)
+              $('#dismiss_modal').modal('show')
+          })
+        })
+
+        $('#dismiss_confirm').click(function (e) {
+            e.preventDefault();
+            let eventId = $('#dismiss_modal').data('event-id')
+            $(".dismiss_form[data-event-id='"+eventId+"']").submit()
+        })
+
+      });
+
+      $("#filterForm").submit(function (e) {
+        $("input[name='timeType']").val($("input[name='radio_filter']:checked").val());
+        return true;
+      })
+
+      $('#button_filter').click(function (e) {
+        e.preventDefault();
+        $("input[name='page']").val(1);
+        $('#filterForm').submit();
+      });
+
+    </script>
+
+  </body>
+</html>

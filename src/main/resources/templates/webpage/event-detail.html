@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
+
+    <title>Thông tin sự kiện</title>
+    <style>
+        body {
+          background-color: #F1F6FF;
+        }
+      </style>
+  </head>
+  <body>
+    <!--  Header -->
+    <div th:replace="~{fragments/header}"></div>
+    <!--  Header -->
+    <div class="container pt-4 pb-4">
+
+      <!--   Toast   -->
+      <div th:replace="~{fragments/toast}"></div>
+      <!--   Toast   -->
+
+      <!--   Alert   -->
+      <div th:if="${message != null}">
+        <div class="row">
+          <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
+      <!--   Alert   -->
+
+      <h3 class="text-center text-lg-start">Thông tin của sự
+        kiện</h3>
+      <div class="row pt-3">
+        <div class="col-3">Tên sự kiện</div>
+        <div class="col-9 text-secondary" th:text="${event.name}"></div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Thông tin mô tả</div>
+        <div class="col-9 text-secondary" th:text="${event.description}"></div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Khoa</div>
+        <div class="col-9 text-secondary" th:if="${event.facultyName!=null}" th:text="${event.facultyName}"></div>
+        <div class="col-9 text-secondary" th:unless="${event.facultyName!=null}">Toàn bộ khoa</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Lớp</div>
+        <div class="col-9 text-secondary" th:if="${event.classroomName!=null}" th:text="${event.classroomName}"></div>
+        <div class="col-9 text-secondary" th:unless="${event.classroomName!=null}">Toàn bộ lớp</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Ngày diễn ra</div>
+        <div class="col-9 text-secondary" th:text="${event.date}"></div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Bắt đầu</div>
+        <div class="col-9 text-secondary" th:text="${event.startTime}"></div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Kết thúc</div>
+        <div class="col-9 text-secondary" th:text="${event.endTime}"></div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-3">Địa điểm</div>
+        <div class="col-9 text-secondary" th:text="${event.roomCode} + '-' + ${event.departmentName}"></div>
+      </div>
+      <hr>
+      <div class="text-center text-lg-end">
+        <div sec:authorize="isAnonymous()">
+          <a th:href="@{/event}" class="btn btn-outline-primary me-5">Quay lại</a>
+          <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
+        </div>
+        <div sec:authorize="hasAuthority('STUDENT')">
+          <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+            <button type="button" class="btn btn-danger dismiss_btn">Hủy tham gia</button>
+          </form>
+          <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
+            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+            <button type="button" class="btn btn-primary attend_btn">Tham gia</button>
+          </form>
+        </div>
+        <div sec:authorize="hasAuthority('TEACHER')">
+          <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+            <a th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning me-5">Chỉnh sửa</a>
+            <button type="button" th:if="${event.createStatus}" class="btn btn-danger me-5 delete_btn">Xóa</button>
+            <a th:if="${event.createStatus}" th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success">Xem danh sách</a>
+          </form>
+        </div>
+        <div sec:authorize="hasAuthority('ADMIN')">
+          <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+            <a th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning me-5">Chỉnh sửa</a>
+            <button type="button" class="btn btn-danger me-5 delete_btn">Xóa</button>
+            <a th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success">Xem danh sách</a>
+          </form>
+        </div>
+      </div>
+
+      <!--  MODAL  -->
+      <div th:replace="~{fragments/modal}"></div>
+      <!--  MODAL  -->
+
+    </div>
+    <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    <script th:inline="javascript">
+      function showToast(message) {
+        $("#toast .toast-body").text(message);
+        const toast = new bootstrap.Toast($("#toast"))
+        toast.show()
+      }
+
+      function getParentElement(element, parent) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(parent)) {
+                return element.parentElement;
+            }
+            element = element.parentElement;
+        }
+      }
+
+      $(document).ready(function () {
+        $(".attend_btn").each(function (index, element) {
+            $(element).on('click', function(e) {
+                let eventId = $(getParentElement(element, '.attend_form')).data('event-id')
+                $('#attend_modal').data('event-id', eventId)
+                $('#attend_modal').modal('show')
+            })
+        })
+
+        $('#attend_confirm').click(function (e) {
+            e.preventDefault();
+            let eventId = $('#attend_modal').data('event-id')
+            $(".attend_form[data-event-id='"+eventId+"']").submit()
+        })
+
+        $(".dismiss_btn").each(function (index, element) {
+            $(element).on('click', function(e) {
+                let eventId = $(getParentElement(element, '.dismiss_form')).data('event-id')
+                $('#dismiss_modal').data('event-id', eventId)
+                $('#dismiss_modal').modal('show')
+            })
+        })
+
+        $('#dismiss_confirm').click(function (e) {
+            e.preventDefault();
+            let eventId = $('#dismiss_modal').data('event-id')
+            $(".dismiss_form[data-event-id='"+eventId+"']").submit()
+        })
+
+        $(".delete_btn").each(function (index, element) {
+            $(element).on('click', function(e) {
+                let eventId = $(getParentElement(element, '.delete_form')).data('event-id')
+                $('#delete_modal').data('event-id', eventId)
+                $('#delete_modal').modal('show')
+            })
+        })
+
+        $('#delete_confirm').click(function (e) {
+            e.preventDefault();
+            let eventId = $('#delete_modal').data('event-id')
+            $(".delete_form[data-event-id='"+eventId+"']").submit()
+        })
+      });
+
+    </script>
+  </body>
+</html>

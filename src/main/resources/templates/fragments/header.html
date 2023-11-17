@@ -1,0 +1,23 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">SGU Event Scheduler</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" aria-current="page" th:href="@{/event}">Sự kiện</a>
+                <a sec:authorize="hasAuthority('TEACHER')" class="nav-link" th:href="@{/event/edit}">Tạo sự kiện</a>
+                <a class="nav-link" th:href="@{/event/my-event}">Lịch của tôi</a>
+                <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/info}">Tài khoản</a>
+                <a sec:authorize="isAuthenticated()" sec:authentication="principal.username" class="nav-link"></a>
+                <a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Đăng xuất</a>
+                <a sec:authorize="isAnonymous()" class="nav-link" th:href="@{/login}">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</nav>

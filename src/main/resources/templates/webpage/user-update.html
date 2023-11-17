@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
+        <title>SGU Event Schedular</title>
+    </head>
+    <style>
+        body {
+          font-family: 'Poppins', sans-serif;
+          background-color: #F1F6FF;
+        }
+    </style>
+    <body>
+        <!--  Header -->
+        <div th:replace="~{fragments/header}"></div>
+        <!--  Header -->
+
+        <div class="container p-4 d-flex flex-column align-items-center">
+
+            <!--   Alert   -->
+            <div th:if="${alert != null}">
+                <div class="row">
+                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                        <span sec:authorize="hasAuthority('STUDENT')">Mã số sinh viên đã tồn tại</span>
+                        <span sec:authorize="hasAuthority('TEACHER')">Mã giảng viên đã tồn tại</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            <!--   Alert   -->
+
+            <h3 class="mb-4">Cập nhật thông tin cá nhân</h3>
+            <form class="w-auto" th:action="@{/user/update-info}" method="post" th:object="${userDto}">
+                <input type="hidden" th:field="*{id}">
+                <div class="mb-3">
+                    <label for="fullname" class="form-label">Họ tên</label>
+                    <input type="text" class="form-control" id="fullname" th:field="*{fullName}">
+                    <span class="form-text text-danger">We'll never share your email with anyone else.</span>
+                </div>
+                <div class="mb-3" sec:authorize="hasAuthority('STUDENT')">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}">
+                    <span class="form-text text-danger">We'll never share your email with anyone else.</span>
+                </div>
+                <div class="mb-3" sec:authorize="hasAnyAuthority('STUDENT', 'TEACHER')">
+                    <label for="user_code" class="form-label" sec:authorize="hasAuthority('STUDENT')">Mã số sinh viên</label>
+                    <label for="user_code" class="form-label" sec:authorize="hasAuthority('TEACHER')">Mã giảng viên</label>
+                    <input type="text" class="form-control" id="user_code" th:field="*{userCode}">
+                    <span class="form-text text-danger">We'll never share your email with anyone else.</span>
+                </div>
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <button type="submit" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                    <div class="col-6 text-center">
+                        <a class="btn btn-danger" th:href="@{/user/info}">Hủy</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+        <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    </body>
+</html>

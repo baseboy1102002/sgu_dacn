@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--  Head  -->
+<div th:replace="~{fragments/head}"></div>
+<!--  Head  -->
+<body>
+<!--  Header -->
+<div th:replace="~{fragments/header}"></div>
+<!--  Header -->
+<div class="container pt-4 pb-4">
+
+    <!--   Toast   -->
+    <div th:replace="~{fragments/toast}"></div>
+    <!--   Toast   -->
+
+    <!--   Alert   -->
+    <div th:if="${message != null}">
+        <div class="row">
+            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                <span th:text="${message}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <!--   Alert   -->
+
+    <div class="col-12 col-md-8 col-lg-6 mx-auto">
+        <h3 class="text-center" th:text="${CreateOrUpdate}"></h3>
+        <form id="event_form" th:action="@{/event/edit}" method="post" th:object="${eventDto}" class="w-100 row g-2 g-md-4 mx-auto needs-validation" novalidate>
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{departmentCode}">
+            <input type="hidden" th:field="*{roomCode}">
+            <input type="hidden" th:field="*{facultyCode}">
+            <input type="hidden" th:field="*{classroomCode}">
+            <div class="mb-3 col-12 col-md-8">
+                <label for="fullname" class="form-label">Tên sự kiện <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="fullname" th:field="*{name}" required>
+                <div class="invalid-feedback">Vui lòng điền tên</div>
+            </div>
+            <div class="mb-3 col-12 col-md-4">
+                <label for="date" class="form-label">Ngày diễn ra <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="date" th:field="*{date}" required>
+                <div class="invalid-feedback">Vui lòng chọn ngày</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="startTime" class="form-label">Giờ bắt đầu <span class="text-danger">*</span></label>
+                <input type="time" min="05:00" max="20:00" class="form-control" id="startTime" th:field="*{startTime}" required>
+                <div class="invalid-feedback">Giờ không hợp lệ</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="endTime" class="form-label">Giờ kết thúc <span class="text-danger">*</span></label>
+                <input type="time" min="06:00" max="21:00" class="form-control" id="endTime" th:field="*{endTime}" required>
+                <div class="invalid-feedback">Giờ không hợp lệ</div>
+            </div>
+            <div class="mb-3 col-12 col-md-4">
+                <label for="description" class="form-label">Sức chứa (tối đa 250) <span class="text-warning">*</span></label>
+                <input type="number" min="1" max="250" class="form-control" id="numOfSeat" th:field="*{numOfSeat}">
+            </div>
+            <div class="mb-3 col-12">
+                <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" rows="6" th:field="*{description}" required></textarea>
+                <div class="invalid-feedback">Vui lòng điền mô tả</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="department_select" class="form-label">Cơ sở<span class="text-danger">*</span></label>
+                <select class="form-select" id="department_select" required>
+                    <option value selected disabled hidden>Chọn cơ sở</option>
+                </select>
+                <div class="invalid-feedback">Vui lòng chọn một cơ sở</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="room_select" class="form-label">Phòng học <span class="text-danger">*</span></label>
+                <select class="form-select" id="room_select" th:disabled="${eventDto.id == null}" required>
+                    <option value selected disabled hidden>Chọn một cơ sở trước</option>
+                </select>
+                <div class="invalid-feedback">Vui lòng chọn một phòng</div>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="faculty_select" class="form-label">Chọn khoa</label>
+                <select class="form-select" id="faculty_select">
+                    <option value selected disabled hidden>Chọn khoa</option>
+                    <option value>Tất cả</option>
+                </select>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="class_select" class="form-label">Chọn lớp</label>
+                <select class="form-select" id="class_select">
+                    <option value selected disabled hidden>Chọn lớp</option>
+                    <option value>Tất cả</option>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-6 text-center">
+                    <button type="button" class="btn btn-danger">Hủy</button>
+                </div>
+                <div class="col-6 text-center">
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/webpage/plugins/select2/js/select2.min.js}"></script>
+<script th:inline="javascript">
+    let faculties = [[${faculties}]]
+    let classrooms = [[${classrooms}]]
+    let departments = [[${departments}]]
+    let rooms = [[${rooms}]]
+    let editMode = [[${editMode}]]
+
+    $(document).ready(function () {
+        $('#date').attr( {"min" : new Date().toLocaleDateString("en-CA", {timeZone: 'Asia/Ho_Chi_Minh'}) })
+
+        let faculty_data = $.map(faculties, function (obj) {
+            obj.id = obj.code
+            obj.text = obj.name
+            return obj;
+        });
+        let class_data = $.map(classrooms, function (obj) {
+            obj.id = obj.code
+            obj.text = obj.name
+            return obj;
+        });
+        let department_data = $.map(departments, function (obj) {
+            obj.id = obj.code
+            obj.text = obj.name
+            return obj;
+        });
+
+        let room_data
+
+        $("#faculty_select").select2({
+            data: faculty_data
+        })
+        $("#class_select").select2({
+            data: class_data
+        })
+        $("#department_select").select2({
+            data: department_data
+        })
+
+        if (editMode === 'create') {
+            room_data = $.map(rooms, function (obj) {
+                obj.id = obj.code
+                obj.text = obj.code
+                return obj;
+            })
+            $("#room_select").select2({
+                data: room_data,
+            })
+            $("#room_select").val($("input[name='roomCode']").val()).trigger('change.select2')
+        } else {
+            let initdata = {
+                "date": $("#date").val(),
+                "startTime": $("#startTime").val(),
+                "endTime": $("#endTime").val(),
+                "departmentCode": $("input[name='departmentCode']").val(),
+                "eventId": $("input[name='id']").val()
+            }
+            $.ajax({
+                type: "get",
+                url: "/api/room",
+                data: initdata,
+                dataType: "json",
+                success: function (response) {
+                    room_data = $.map(response, function (obj) {
+                        obj.id = obj.code
+                        obj.text = obj.code
+                        return obj;
+                    });
+                    $("#room_select").select2({
+                        data: room_data
+                    })
+                    $("#room_select").val($("input[name='roomCode']").val()).trigger('change.select2')
+                }
+            })
+        }
+
+        $('#department_select').on('select2:select', function (e) {
+            $('#room_select').prop('disabled', false);
+            let date = $("#date").val();
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
+            if (startTime >= endTime || date === "" || startTime === "" || endTime === "") {
+                let data = e.params.data
+                let departmentCode = data.id
+                if (departmentCode === "") {
+                    room_data = $.map(rooms, function (obj) {
+                        obj.id = obj.code
+                        obj.text = obj.code
+                        return obj;
+                    });
+                }
+                else {
+                    room_data = rooms.reduce( (acc, item) => {
+                        if (item.departmentCode === departmentCode) {
+                            let obj = {id: item.code, text: item.code}
+                            acc.push(obj)
+                        }
+                    return acc}, [])
+                }
+                $("#room_select").empty()
+                $("#room_select").select2({
+                    data: room_data,
+                })
+            } else {
+                let data = {
+                    "date": date,
+                    "startTime": startTime,
+                    "endTime": endTime,
+                    "departmentCode": $("#department_select").val(),
+                    "eventId": $("input[name='id']").val()
+                }
+                $.ajax({
+                    type: "get",
+                    url: "/api/room",
+                    data: data,
+                    dataType: "json",
+                    success: function (response) {
+                        room_data = $.map(response, function (obj) {
+                            obj.id = obj.code
+                            obj.text = obj.code
+                            return obj;
+                        });
+                        $("#room_select").empty()
+                        $("#room_select").select2({
+                            data: room_data
+                        })
+                    }
+                });
+            }
+        });
+
+        $('#faculty_select').on('select2:select', function (e) {
+            let data = e.params.data
+            let facultyCode = data.id
+            if (facultyCode === "") {
+                class_data = $.map(classrooms, function (obj) {
+                    obj.id = obj.code
+                    obj.text = obj.name
+                    return obj;
+                });
+                class_data.unshift({id:"", text:"Tất cả"})
+            } else {
+                class_data = classrooms.reduce( (acc, item) => {
+                    if (item.facultyCode === facultyCode) {
+                        let obj = {id: item.code, text: item.name}
+                        acc.push(obj)
+                    }
+                return acc}, [{id:"", text:"Tất cả"}])
+            }
+            $("#class_select").empty()
+            $("#class_select").select2({
+                data: class_data
+            })
+        })
+
+        $("#department_select").val($("input[name='departmentCode']").val()).trigger('change.select2')
+        $("#faculty_select").val($("input[name='facultyCode']").val())
+        $('#faculty_select').trigger('change.select2')
+        $("#class_select").val($("input[name='classroomCode']").val())
+        $('#class_select').trigger('change.select2')
+    });
+
+    $('#date, #startTime, #endTime').blur(function() {
+        let date = $("#date").val();
+        let startTime = $("#startTime").val();
+        let endTime = $("#endTime").val();
+        if (startTime >= endTime || date === "" || startTime === "" || endTime === "")
+            return
+        let data = {
+            "date": date,
+            "startTime": startTime,
+            "endTime": endTime,
+            "departmentCode": $("#department_select").val(),
+            "eventId": $("input[name='id']").val()
+        }
+        $.ajax({
+            type: "get",
+            url: "/api/room",
+            data: data,
+            dataType: "json",
+            success: function (response) {
+                let room_data = $.map(response, function (obj) {
+                    obj.id = obj.code
+                    obj.text = obj.code
+                    return obj;
+                });
+                $("#room_select").empty()
+                $("#room_select").select2({
+                    data: room_data
+                })
+            }
+        });
+    });
+
+    (() => {
+        'use strict';
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      const forms = document.querySelectorAll('.needs-validation');
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms).forEach((form) => {
+        form.addEventListener('submit', (event) => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+        });
+    })();
+
+    $("#event_form").submit(function (e) {
+        e.preventDefault()
+        const HalfHour = 30*60*1000
+        const currentDate = new Date()
+        currentDate.setSeconds(0)
+        const dateStr = $('#date').val()
+        const timeStartStr = $('#startTime').val()
+        const timeEndStr = $('#endTime').val()
+        const startTime = new Date(`${dateStr} ${timeStartStr}`)
+        const endTime = new Date(`${dateStr} ${timeEndStr}`)
+        console.log(startTime.toLocaleString())
+        console.log(currentDate.toLocaleString())
+        console.log("TEST start-curr: ", startTime.getTime()<currentDate.getTime())
+        console.log("TEST start-end: ", endTime.getTime()<startTime.getTime())
+        console.log("TEST 30min: ", endTime-startTime < HalfHour)
+        if (startTime.getTime()<currentDate.getTime()) {
+            showToast('Thời gian bắt đầu không hợp lệ')
+            e.preventDefault()
+            return false;
+        } else if (endTime.getTime()<startTime.getTime()) {
+            showToast('Thời gian bắt đầu và kết thúc không hợp lệ')
+            e.preventDefault()
+            return false;
+        } else if ( (startTime.getTime()+HalfHour) <= endTime.getTime() ) {
+            showToast('Khoảng thời gian phải tối thiểu 15p')
+            e.preventDefault()
+            return false
+        } else {
+            console.log("OK")
+            $("input[name='departmentCode']").val($("#department_select").val());
+            $("input[name='roomCode']").val($("#room_select").val());
+            $("input[name='facultyCode']").val($("#faculty_select").val());
+            $("input[name='classroomCode']").val($("#class_select").val());
+            return true
+        }
+    })
+
+    function showToast(message) {
+        $("#toast .toast-body").text(message);
+        const toast = new bootstrap.Toast($("#toast"))
+        toast.show()
+    }
+</script>
+</body>
+</html>

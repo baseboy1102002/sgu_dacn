@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
+        <title>Thông tin tài khoản</title>
+    </head>
+
+    <style>
+        body {
+          font-family: 'Poppins', sans-serif;
+          background-color: #F1F6FF;
+        }
+    </style>
+    <body>
+        <!--  Header -->
+        <div th:replace="fragments/header"></div>
+        <!--  Header -->
+        <div class="container pt-4">
+
+            <!--   Alert   -->
+            <div th:if="${message != null}">
+                <div class="row">
+                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                        <span th:text="${message}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            <!--   Alert   -->
+
+                <h3 class="mb-4 text-center">Thông tin tài khoản</h3>
+                <div class="row">
+                    <div class="col col-sm-12 col-md-6 col-lg-4 m-auto">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-3">Tài khoản</div>
+                                    <div class="col-9 text-secondary" th:text="${user.username}"></div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-3">Vai trò</div>
+                                    <div class="col-9 text-secondary" th:text="${user.roleName}"></div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-3">Họ tên</div>
+                                    <div class="col-9 text-secondary" th:text="${user.fullName}"></div>
+                                </div>
+                                <hr>
+                                <th:block sec:authorize="hasAuthority('STUDENT')">
+                                    <div class="row">
+                                        <div class="col-3">Email</div>
+                                        <div class="col-9 text-secondary" th:text="${user.email}"></div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-3">Mã số sinh viên</div>
+                                        <div class="col-9 text-secondary" th:text="${user.userCode}"></div>
+                                    </div>
+                                    <hr>
+                                </th:block>
+                                <th:block sec:authorize="hasAuthority('TEACHER')">
+                                    <div class="row">
+                                        <div class="col-3">Mã giảng viên</div>
+                                        <div class="col-9 text-secondary" th:text="${user.userCode}"></div>
+                                    </div>
+                                    <hr>
+                                </th:block>
+                                <div class="row">
+                                    <div class="col-6 text-center">
+                                        <a class="btn btn-outline-primary" th:href="@{/user/update-info}">Sửa thông tin</a>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <a class="btn btn-outline-primary" th:href="@{/user/change-password}">Đổi mật khẩu</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+        <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    </body>
+</html>

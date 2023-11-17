@@ -1,0 +1,39 @@
+hr {
+  height: 2px;
+  background-color: gray;
+}
+
+
+/* list-group - admin page - room.html*/
+.group-item_dp-none {
+  max-height: 0;
+}
+
+.list-group > .list-group {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.list-group-item{
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  border-width: 0;
+}
+
+.list-group > .list-group-item:first-child {
+  border-radius: 0;
+}
+
+.list-group > .list-group-item:last-child {
+  margin-bottom: 0rem;
+}
+
+.list-group  > .list-group > .list-group-item {
+  padding-left: 3rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  border-width: 1px 0 0 0;
+  line-height: 2rem;
+  border-color: rgb(145, 145, 145);
+}

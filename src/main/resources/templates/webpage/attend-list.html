@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
+
+    <title>Danh sách tham dự</title>
+    <style>
+        body {
+          background-color: #F1F6FF;
+        }
+    </style>
+</head>
+<body>
+<!--  Header -->
+<div th:replace="~{fragments/header}"></div>
+<!--  Header -->
+<div class="container pt-4 pb-4">
+
+    <h4 class="text-center mb-3">Danh sách sinh viên tham dự</h4>
+    <div class="text-center mb-4">
+        <a th:href="@{{id}/students/export-excel(id=${eventId})}" class="btn btn-primary me-5"><i class="fa-solid fa-print"></i> In danh sách</a>
+        <a th:href="@{/event/check-attend/{id}(id=${eventId})" class="btn btn-primary"><i class="fa-solid fa-user-check"></i> Điểm danh</a>
+    </div>
+    <div class="col-12 col-md-8 col-lg-6 mx-auto">
+        <table class="table table-striped">
+            <thead class="align-middle">
+            <tr>
+                <th scope="col" class="col-1">STT</th>
+                <th scope="col" class="col-5">Tên sinh viên</th>
+                <th scope="col" class="col-4">Mã số sinh viên</th>
+                <th scope="col" class="col-2">Điểm danh</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="student : ${students}">
+                <th:block th:with="stt=${studentStat.index+1}"></th:block>
+                <tr>
+                    <td th:text="${stt}"></td>
+                    <td th:text="${student.studentInfoUserFullName}"></td>
+                    <td th:text="${student.studentInfoStudentCode}"></td>
+                    <td th:if="${student.checkAttended}" class="text-center"><i class="fa-regular fa-circle-check"></i></td>
+                    <td th:unless="${student.checkAttended}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+</body>
+</html>
