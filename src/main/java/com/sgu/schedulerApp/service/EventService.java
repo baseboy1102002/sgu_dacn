@@ -24,7 +24,7 @@ public interface EventService {
 
     Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId);
 
-    Page<EventDto> searchTest(FilterDto filterDto, String keyword, int pagenum);
+    Page<EventDto> findAllEventWithSearchAndPaging(FilterDto filterDto, String keyword, int pagenum);
 
     EventDto saveEvent(EventDto eventDto);
 
@@ -33,6 +33,8 @@ public interface EventService {
     String getEventName(int id);
 
     void deleteEvent(int id);
+
+    //    public void sendDeleteEventEmail(int eventId, EventDto eventDto);
 
     public List<StudentInfoDto> getAllCheckedAttendStudent(int eventId);
 

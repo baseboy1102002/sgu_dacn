@@ -38,4 +38,6 @@ public class EventDto {
 
 //    for teachers
     public Boolean createStatus;
+
+    public Boolean isOutDated;
 }

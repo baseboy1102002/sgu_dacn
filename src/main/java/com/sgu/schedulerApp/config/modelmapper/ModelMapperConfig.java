@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,6 +75,15 @@ public class ModelMapperConfig {
                 }
             };
 
+    Converter<Event, Boolean> toIsOutDated = new
+            AbstractConverter<Event, Boolean>() {
+                @Override
+                protected Boolean convert(Event event) {
+                    LocalDateTime time = LocalDateTime.of(event.getDate(), event.getStartTime());
+                    return time.isBefore(LocalDateTime.now());
+                }
+            };
+
     PropertyMap<Event, EventDto> eventMap = new PropertyMap<Event, EventDto>()
     {
         protected void configure()
@@ -82,6 +92,7 @@ public class ModelMapperConfig {
             using(toCreateStatus).map(source.getUser()).setCreateStatus(false);
             using(toDepartmentName).map(source.getRoom()).setDepartmentName("");
             using(toDepartmentCode).map(source.getRoom()).setDepartmentCode("");
+            using(toIsOutDated).map(source).setIsOutDated(false);
         }
     };
 

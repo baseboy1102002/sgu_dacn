@@ -1,52 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-  <!--  Head  -->
-  <div th:replace="~{fragments/head}"></div>
-  <!--  Head  -->
+<!--  Head  -->
+<div th:replace="~{fragments/head}"></div>
+<!--  Head  -->
 
-  <body>
-    <!--  Header -->
-    <div th:replace="~{fragments/header}"></div>
-    <!--  Header -->
+<body>
+<!--  Header -->
+<div th:replace="~{fragments/header}"></div>
+<!--  Header -->
 
-    <div class="container p-4">
+<div class="container p-4">
 
-      <!--   Toast   -->
-      <div th:replace="~{fragments/toast}"></div>
-      <!--   Toast   -->
+  <!--   Toast   -->
+  <div th:replace="~{fragments/toast}"></div>
+  <!--   Toast   -->
 
-      <!--   Alert   -->
-      <div th:if="${message != null}">
-        <div class="row">
-          <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-            <span th:text="${message}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+  <!--   Alert   -->
+  <div th:if="${message != null}">
+    <div class="row">
+      <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  <!--   Alert   -->
+
+  <!-- Search form -->
+  <form th:action="@{/event}" th:object="${searchDto}" method="get" id="searchform">
+    <div class="row">
+      <h4 class="col-sm-12 col-md-6 col-lq-6 col-xl-8">DANH SÁCH SỰ KIỆN</h4>
+      <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4 ms-auto">
+        <div class="input-group">
+          <button type="button" class="input-group-text" data-bs-toggle="collapse"
+                  data-bs-target="#filterPanel"><i class="fa-solid fa-filter me-1"></i>Nâng cao
+          </button>
+          <input type="text" class="form-control" id="keyword_input" placeholder="Tìm" />
+          <button id="button-search" type="button" class="btn btn-primary"><i class="fas fa-search"></i></button>
         </div>
       </div>
-      <!--   Alert   -->
+    </div>
 
-      <!-- Search form -->
-      <form th:action="@{/event}" th:object="${searchDto}" method="get" id="searchform">
-        <div class="row">
-          <h4 class="col-sm-12 col-md-6 col-lq-6 col-xl-8">DANH SÁCH SỰ KIỆN</h4>
-          <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4 ms-auto">
-            <div class="input-group">
-              <button type="button" class="input-group-text" data-bs-toggle="collapse"
-                data-bs-target="#filterPanel"><i class="fa-solid fa-filter me-1"></i>Nâng cao
-              </button>
-              <input type="text" class="form-control" id="keyword_input" placeholder="Tìm" />
-              <button id="button-search" type="button" class="btn btn-primary"><i class="fas fa-search"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="collapse" id="filterPanel">
-          <div class="card">
-            <div class="card-header text-center">
-              <h5>Bộ lọc tìm kiếm</h5>
-              <div class="d-flex w-50 mx-auto justify-content-evenly align-items-center">
+    <div class="collapse" id="filterPanel">
+      <div class="card">
+        <div class="card-header text-center">
+          <h5>Bộ lọc tìm kiếm</h5>
+          <div class="d-flex w-50 mx-auto justify-content-evenly align-items-center">
                 <span sec:authorize="hasAuthority('STUDENT')">
                   Chỉ hiển thị các sự kiện có thể tham gia
                   <label class="switch">
@@ -54,156 +54,171 @@
                     <span class="slider round"></span>
                   </label>
                 </span>
-              </div>
-              <div class="d-flex w-50 mx-auto justify-content-center align-items-center">
-                <button type="button" class="btn btn-outline-primary btn-sm me-3">Reset</button>
-                <button id="button-filter" type="button" class="btn btn-primary btn-sm">Lọc</button>
+          </div>
+          <div class="d-flex w-50 mx-auto justify-content-center align-items-center">
+            <button type="button" class="btn btn-outline-primary btn-sm me-3">Reset</button>
+            <button id="button-filter" type="button" class="btn btn-primary btn-sm">Lọc</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row row-cols-1 row-cols-sm-1 row-cols-lg-3 row-cols-md-3">
+            <div class="col">
+              <div class="card">
+                <div class="card-header">Địa điểm tổ chức</div>
+                <div class="card-body">
+                  <label for="department_select">Cơ sở</label>
+                  <p class="mb-2">
+                    <select style="width:100%" id="department_select">
+                      <option value="" selected disabled hidden>Chọn cơ sở</option>
+                      <option value="">Tất cả</option>
+                    </select>
+                  </p>
+                  <label for="room_select">Phòng</label>
+                  <p>
+                    <select style="width:100%" id="room_select">
+                      <option value="" selected disabled hidden>Chọn phòng</option>
+                      <option value="">Tất cả</option>
+                    </select>
+                  </p>
+                </div>
               </div>
             </div>
+            <div class="col">
+              <div class="card">
+                <div class="card-header">Dành cho Khoa/Lớp</div>
+                <div class="card-body">
+                  <label for="faculty_select">Khoa</label>
+                  <p class="mb-2">
+                    <select style="width:100%" id="faculty_select">
+                      <option value="" selected disabled hidden>Chọn khoa</option>
+                      <option value="">Tất cả</option>
+                    </select>
+                  </p>
+                  <label for="class_select">Lớp</label>
+                  <p>
+                    <select style="width:100%" id="class_select">
+                      <option value="" selected disabled hidden>Chọn lớp</option>
+                      <option value="">Tất cả</option>
+                    </select>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card">
+                <div class="card-header">Thời điểm</div>
+                <div class="card-body">
+                  <label for="date_start">Từ ngày</label>
+                  <input class="form-control mb-2" type="date" id="date_start">
+                  <label for="date_end">Đến ngày</label>
+                  <input class="form-control" type="date" id="date_end">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" th:field="*{keyword}">
+    <input type="hidden" th:field="*{filterDto.departmentCode}">
+    <input type="hidden" th:field="*{filterDto.roomCode}">
+    <input type="hidden" th:field="*{filterDto.facultyCode}">
+    <input type="hidden" th:field="*{filterDto.classCode}">
+    <input type="hidden" th:field="*{filterDto.startTime}">
+    <input type="hidden" th:field="*{filterDto.endTime}">
+    <input type="hidden" th:field="*{filterDto.isOnlyAttainable}">
+    <input type="hidden" id="page" name="page" th:value="${page}">
+  </form>
+  <!-- Search form -->
+
+  <div class="pt-3">
+    <div class="row g-4 row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+      <th:block th:each="event: ${events}">
+        <div class="col">
+          <div class="card border-0 shadow">
             <div class="card-body">
-              <div class="row row-cols-1 row-cols-sm-1 row-cols-lg-3 row-cols-md-3">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-header">Địa điểm tổ chức</div>
-                    <div class="card-body">
-                      <label for="department_select">Cơ sở</label>
-                      <p class="mb-2">
-                        <select style="width:100%" id="department_select">
-                          <option value="" selected disabled hidden>Chọn cơ sở</option>
-                          <option value="">Tất cả</option>
-                        </select>
-                      </p>
-                      <label for="room_select">Phòng</label>
-                      <p>
-                        <select style="width:100%" id="room_select">
-                          <option value="" selected disabled hidden>Chọn phòng</option>
-                          <option value="">Tất cả</option>
-                        </select>
-                      </p>
-                    </div>
-                  </div>
+              <h5 class="card-title text-line-2" th:text="${event.name}"></h5>
+              <div class="d-flex justify-content-between">
+                <h6 class="card-subtitle mb-2 text-muted" th:text="${event.date}"></h6>
+                <h6 class="card-subtitle mb-2 text-muted" th:text="${event.startTime} + '-' + ${event.endTime}"></h6>
+              </div>
+              <p class="card-text text-line-3" th:text="${event.description}"></p>
+              <div class="row">
+                <div class="col-6">
+                  <a th:href="@{/event/{id}(id=${event.id})}" class="btn btn-outline-primary">Xem chi tiết</a>
                 </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-header">Dành cho Khoa/Lớp</div>
-                    <div class="card-body">
-                      <label for="faculty_select">Khoa</label>
-                      <p class="mb-2">
-                        <select style="width:100%" id="faculty_select">
-                          <option value="" selected disabled hidden>Chọn khoa</option>
-                          <option value="">Tất cả</option>
-                        </select>
-                      </p>
-                      <label for="class_select">Lớp</label>
-                      <p>
-                        <select style="width:100%" id="class_select">
-                          <option value="" selected disabled hidden>Chọn lớp</option>
-                          <option value="">Tất cả</option>
-                        </select>
-                      </p>
-                    </div>
+                <div class="col-6 text-end">
+                  <div sec:authorize="isAnonymous()">
+                    <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
                   </div>
-                </div>
-                <div class="col">
-                  <div class="card">
-                    <div class="card-header">Thời điểm</div>
-                    <div class="card-body">
-                      <label for="date_start">Từ ngày</label>
-                      <input class="form-control mb-2" type="date" id="date_start">
-                      <label for="date_end">Đến ngày</label>
-                      <input class="form-control" type="date" id="date_end">
-                    </div>
+                  <div sec:authorize="hasAuthority('STUDENT')">
+                    <th:block th:if="${event.isOutDated}">
+                      <button type="button" class="btn btn-secondary" disabled>Đã diễn ra</button>
+                    </th:block>
+                    <th:block th:unless="${event.isOutDated}">
+                      <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+                        <button type="button" class="btn btn-danger dismiss_btn">Hủy tham gia</button>
+                      </form>
+                      <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
+                        <button type="button" class="btn btn-primary attend_btn">Tham gia</button>
+                      </form>
+                    </th:block>
+                  </div>
+                  <div sec:authorize="hasAuthority('TEACHER')">
+                    <th:block th:if="${event.isOutDated}">
+                      <button type="button" class="btn btn-secondary" disabled>Đã diễn ra</button>
+                    </th:block>
+                    <th:block th:unless="${event.isOutDated}">
+                      <a th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
+                    </th:block>
+                  </div>
+                  <div sec:authorize="hasAuthority('ADMIN')">
+                    <th:block th:if="${event.isOutDated}">
+                      <button type="button" class="btn btn-secondary" disabled>Đã diễn ra</button>
+                    </th:block>
+                    <th:block th:unless="${event.isOutDated}">
+                      <a th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
+                    </th:block>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <input type="hidden" th:field="*{keyword}">
-        <input type="hidden" th:field="*{filterDto.departmentCode}">
-        <input type="hidden" th:field="*{filterDto.roomCode}">
-        <input type="hidden" th:field="*{filterDto.facultyCode}">
-        <input type="hidden" th:field="*{filterDto.classCode}">
-        <input type="hidden" th:field="*{filterDto.startTime}">
-        <input type="hidden" th:field="*{filterDto.endTime}">
-        <input type="hidden" th:field="*{filterDto.isOnlyAttainable}">
-        <input type="hidden" id="page" name="page" th:value="${page}">
-      </form>
-      <!-- Search form -->
-
-      <div class="pt-3">
-        <div class="row g-4 row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-          <th:block th:each="event: ${events}">
-            <div class="col">
-              <div class="card border-0 shadow">
-                <div class="card-body">
-                  <h5 class="card-title text-line-2" th:text="${event.name}"></h5>
-                  <div class="d-flex justify-content-between">
-                    <h6 class="card-subtitle mb-2 text-muted" th:text="${event.date}"></h6>
-                    <h6 class="card-subtitle mb-2 text-muted" th:text="${event.startTime} + '-' + ${event.endTime}"></h6>
-                  </div>
-                  <p class="card-text text-line-3" th:text="${event.description}"></p>
-                  <div class="row">
-                    <div class="col-6">
-                      <a th:href="@{/event/{id}(id=${event.id})}" class="btn btn-outline-primary">Xem chi tiết</a>
-                    </div>
-                    <div class="col-6 text-end">
-                      <div sec:authorize="isAnonymous()">
-                        <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
-                      </div>
-                      <div sec:authorize="hasAuthority('STUDENT')">
-                        <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
-                          <button type="button" class="btn btn-danger dismiss_btn">Hủy tham gia</button>
-                        </form>
-                        <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
-                          <button type="button" class="btn btn-primary attend_btn">Tham gia</button>
-                        </form>
-                      </div>
-                      <div sec:authorize="hasAuthority('TEACHER')">
-                        <a th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
-                      </div>
-                      <div sec:authorize="hasAuthority('ADMIN')">
-                        <a th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </th:block>
-        </div>
-
-        <!--  MODAL  -->
-        <div th:replace="~{fragments/modal}"></div>
-        <!--  MODAL  -->
-
-        <nav class="mt-4">
-          <p th:text="|Trang ${page} - Hiển thị ${totalCurrentPage} trong tổng ${totalItem}|"></p>
-          <ul class="pagination justify-content-end" id="pagination"></ul>
-        </nav>
-      </div>
+      </th:block>
     </div>
 
-    <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-    <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
-    <script th:src="@{/webpage/plugins/select2/js/select2.min.js}"></script>
-    <script th:src="@{/webpage/plugins/twbsPagination/jquery.twbsPagination.min.js}"></script>
-    <script th:inline="javascript">
-      let faculties = [[${faculties}]]
-      let classrooms = [[${classrooms}]]
-      let departments = [[${departments}]]
-      let rooms = [[${rooms}]]
+    <!--  MODAL  -->
+    <div th:replace="~{fragments/modal}"></div>
+    <!--  MODAL  -->
 
-      let totalPage = [[${totalPage}]]
-      let currentPage =[[${page}]]
+    <nav class="mt-4">
+      <p th:text="|Trang ${page} - Hiển thị ${totalCurrentPage} trong tổng ${totalItem}|"></p>
+      <ul class="pagination justify-content-end" id="pagination"></ul>
+    </nav>
+  </div>
+</div>
 
-      function showToast(message) {
-        $("#toast .toast-body").text(message);
-        const toast = new bootstrap.Toast($("#toast"))
-        toast.show()
-      }
-    </script>
-    <script th:src="@{/webpage/myscript.js}"></script>
+<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/webpage/plugins/select2/js/select2.min.js}"></script>
+<script th:src="@{/webpage/plugins/twbsPagination/jquery.twbsPagination.min.js}"></script>
+<script th:inline="javascript">
+  let faculties = [[${faculties}]]
+  let classrooms = [[${classrooms}]]
+  let departments = [[${departments}]]
+  let rooms = [[${rooms}]]
 
-  </body>
+  let totalPage = [[${totalPage}]]
+  let currentPage =[[${page}]]
+
+  function showToast(message) {
+    $("#toast .toast-body").text(message);
+    const toast = new bootstrap.Toast($("#toast"))
+    toast.show()
+  }
+</script>
+<script th:src="@{/webpage/myscript.js}"></script>
+
+</body>
 </html>

@@ -55,7 +55,7 @@ public class EventController {
         model.addAttribute("departments", departmentService.findAll());
         model.addAttribute("rooms", roomService.findAll());
 
-        Page<EventDto> eventDtos = eventService.searchTest(filterDto, keyword, pagenum);
+        Page<EventDto> eventDtos = eventService.findAllEventWithSearchAndPaging(filterDto, keyword, pagenum);
         model.addAttribute("events", eventDtos.getContent());
         model.addAttribute("totalPage", eventDtos.getTotalPages());
         model.addAttribute("totalItem", eventDtos.getTotalElements());
@@ -205,7 +205,9 @@ public class EventController {
                               HttpServletRequest request) {
         if (id.isPresent()) {
             int eventId = id.get();
+            EventDto eventDto = eventService.findById(eventId);
             eventService.deleteEvent(eventId);
+            //            eventService.sendDeleteEventEmail(eventId, eventDto);
             redirectAttributes.addFlashAttribute("alert", "success");
             redirectAttributes.addFlashAttribute("message", "Đã hủy bỏ sự kiện.");
             String reqURI = request.getHeader("Referer");
