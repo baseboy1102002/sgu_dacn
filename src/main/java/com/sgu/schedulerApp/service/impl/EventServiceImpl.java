@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
@@ -125,8 +126,7 @@ public class EventServiceImpl implements EventService {
             Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
         }
-
-        Pageable pageable = PageRequest.of(pagenum-1,8);
+        Pageable pageable = PageRequest.of(pagenum-1,8, Sort.by(Sort.Direction.DESC, "ngay"));
         Page<Event> events = eventRepository.searchTest(filterDto, keyword, studentId, pageable);
         return events.map(event -> modelMapper.map(event, EventDto.class));
     }
@@ -255,16 +255,16 @@ public class EventServiceImpl implements EventService {
         } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+id, id);
     }
 
-    //    @Override
-//    @Async
-//    public void sendDeleteEventEmail(int eventId, EventDto eventDto) {
-//        List<EventStudent> eventStudents = eventStudentRepository.getAllStudentAttendEvent(eventId);
-//        if (!eventStudents.isEmpty()) {
-//            List<String> toEmails = eventStudents.stream().map(ev -> ev.getStudentInfo().getEmail()).toList();
-//            List<String> studentNames = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getFullName()).toList();
-//            emailService.sendBulkEmails(toEmails, studentNames, eventDto);
-//        } else return;
-//    }
+    @Override
+    @Async
+    public void sendDeleteEventEmail(int eventId, EventDto eventDto) {
+        List<EventStudent> eventStudents = eventStudentRepository.getAllStudentAttendEvent(eventId);
+        if (!eventStudents.isEmpty()) {
+            List<String> toEmails = eventStudents.stream().map(ev -> ev.getStudentInfo().getEmail()).toList();
+            List<String> studentNames = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getFullName()).toList();
+            emailService.sendBulkEmails(toEmails, studentNames, eventDto);
+        } else return;
+    }
 
     @Override
     public List<StudentInfoDto> getAllCheckedAttendStudent(int eventId) {

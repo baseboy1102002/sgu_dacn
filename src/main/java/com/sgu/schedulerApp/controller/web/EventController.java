@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -77,12 +78,19 @@ public class EventController {
     @GetMapping(value = {"/edit/", "/edit/{id}", "/edit"})
     @PreAuthorize("hasAuthority('TEACHER')")
     public String getEventEdit(Model model, @PathVariable Optional<Integer> id,
-                               @ModelAttribute("eventDto") EventDto eventDto) {
+                               @ModelAttribute("eventDto") EventDto eventDto,
+                               RedirectAttributes redirectAttributes) {
         model.addAttribute("faculties", facultyService.findAll());
         model.addAttribute("classrooms", classRoomService.findAll());
         model.addAttribute("departments", departmentService.findAll());
         model.addAttribute("rooms", roomService.findAll());
         if (id.isPresent()) {
+            EventDto e = eventService.findById(id.get());
+            if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể sửa.");
+                redirectAttributes.addFlashAttribute("alert", "danger");
+                return "redirect:/event";
+            }
             eventDto = eventService.findById(id.get());
             model.addAttribute("editMode", "update");
             model.addAttribute("CreateOrUpdate", "Cập nhật sự kiện");
@@ -158,6 +166,12 @@ public class EventController {
     public String attendEvent(@PathVariable Optional<Integer> id, RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {
             int eventId = id.get();
+            EventDto e = eventService.findById(eventId);
+            if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể thao tác.");
+                redirectAttributes.addFlashAttribute("alert", "danger");
+                return "redirect:/event";
+            }
             Boolean isAttendSuccess = eventService.attendEvent(eventId);
             redirectAttributes.addFlashAttribute("message",isAttendSuccess ?
                     "Đăng ký tham gia sự kiện thành công!" : "Không thể đăng ký, sự kiện bị trùng với lịch trình hiện tại hoặc sự kiện tạm hết chỗ");
@@ -174,6 +188,12 @@ public class EventController {
                                HttpServletRequest request) {
         if (id.isPresent()) {
             int eventId = id.get();
+            EventDto e = eventService.findById(eventId);
+            if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể thao tác.");
+                redirectAttributes.addFlashAttribute("alert", "danger");
+                return "redirect:/event";
+            }
             eventService.dismissEvent(eventId);
             redirectAttributes.addFlashAttribute("alert", "success");
             redirectAttributes.addFlashAttribute("message", "Đã rút khỏi sự kiện.");
@@ -207,7 +227,7 @@ public class EventController {
             int eventId = id.get();
             EventDto eventDto = eventService.findById(eventId);
             eventService.deleteEvent(eventId);
-            //            eventService.sendDeleteEventEmail(eventId, eventDto);
+            eventService.sendDeleteEventEmail(eventId, eventDto);
             redirectAttributes.addFlashAttribute("alert", "success");
             redirectAttributes.addFlashAttribute("message", "Đã hủy bỏ sự kiện.");
             String reqURI = request.getHeader("Referer");

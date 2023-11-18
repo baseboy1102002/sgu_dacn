@@ -34,7 +34,7 @@ public interface EventService {
 
     void deleteEvent(int id);
 
-    //    public void sendDeleteEventEmail(int eventId, EventDto eventDto);
+    public void sendDeleteEventEmail(int eventId, EventDto eventDto);
 
     public List<StudentInfoDto> getAllCheckedAttendStudent(int eventId);
 

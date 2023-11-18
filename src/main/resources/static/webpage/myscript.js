@@ -109,7 +109,7 @@ $(document).ready(function () {
     $("#isOnlyAttainable_checkbox").prop('checked', check)
 
     window.pagObj = $('#pagination').twbsPagination({
-        totalPages: totalPage,
+        totalPages: (totalPage==0)?1:totalPage,
         visiblePages: 5,
         startPage: currentPage,
         onPageClick: function (event, page) {
