@@ -72,10 +72,10 @@
                                 </th:block>
                                 <div class="row">
                                     <div class="col-6 text-center">
-                                        <a class="btn btn-outline-primary" th:href="@{/user/update-info}">Sửa thông tin</a>
+                                        <a class="btn btn-outline-primary" th:href="@{/user/update-info}"><i class="fa-regular fa-pen-to-square"></i> Sửa thông tin</a>
                                     </div>
                                     <div class="col-6 text-center">
-                                        <a class="btn btn-outline-primary" th:href="@{/user/change-password}">Đổi mật khẩu</a>
+                                        <a class="btn btn-outline-primary" th:href="@{/user/change-password}"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +84,6 @@
                 </div>
             </div>
 
-        <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-        <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+        <div th:replace="~{fragments/scripts}"></div>
     </body>
 </html>

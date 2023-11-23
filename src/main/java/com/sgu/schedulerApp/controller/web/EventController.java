@@ -5,8 +5,7 @@ import com.sgu.schedulerApp.dto.FilterDto;
 import com.sgu.schedulerApp.dto.SearchDto;
 import com.sgu.schedulerApp.dto.StudentInfoDto;
 import com.sgu.schedulerApp.exception.CustomErrorException;
-import com.sgu.schedulerApp.service.EventStudentsExcelExporter;
-import com.sgu.schedulerApp.service.impl.*;
+import com.sgu.schedulerApp.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +31,11 @@ import java.util.Optional;
 @RequestMapping(value = "/event")
 public class EventController {
 
-    private final EventServiceImpl eventService;
-    private final FacultyServiceImpl facultyService;
-    private final ClassRoomServiceImpl classRoomService;
-    private final DepartmentServiceImpl departmentService;
-    private final RoomServiceImpl roomService;
+    private final EventService eventService;
+    private final FacultyService facultyService;
+    private final ClassRoomService classRoomService;
+    private final DepartmentService departmentService;
+    private final RoomService roomService;
 
 
     @GetMapping
@@ -76,7 +75,7 @@ public class EventController {
     }
 
     @GetMapping(value = {"/edit/", "/edit/{id}", "/edit"})
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String getEventEdit(Model model, @PathVariable Optional<Integer> id,
                                @ModelAttribute("eventDto") EventDto eventDto,
                                RedirectAttributes redirectAttributes) {
@@ -119,6 +118,7 @@ public class EventController {
     }
 
     @GetMapping(value = {"/attend-list/{id}", "/attend-list/"})
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String getAttendList(Model model, @PathVariable Optional<Integer> id) {
         if (id.isPresent()) {
             int eventId = id.get();
@@ -129,6 +129,7 @@ public class EventController {
     }
 
     @GetMapping(value = {"/{id}/students/export-excel", "/students/export-excel"})
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public void exportToExcel(HttpServletResponse response , @PathVariable Optional<Integer> id) throws IOException {
         List<StudentInfoDto> studentInfoDtos = null;
         String eventName = null;
@@ -151,6 +152,7 @@ public class EventController {
     }
 
     @GetMapping(value = {"/check-attend/{id}", "/check-attend/"})
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String getCheckAttendance(Model model, @PathVariable Optional<Integer> id) {
         if (id.isPresent()) {
             int eventId = id.get();
@@ -237,14 +239,25 @@ public class EventController {
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
-    @PostMapping(value = "check-attend/{id}")
+    @PostMapping(value = {"check-attend/{id}", "check-attend/"})
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String checkAttendance(@PathVariable Optional<Integer> id, @RequestParam String studentCode, RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {
             int eventId = id.get();
             HashMap result = eventService.checkAttendEvent(eventId, studentCode);
             redirectAttributes.addFlashAttribute("alert", result.get("alert"));
             redirectAttributes.addFlashAttribute("message", result.get("message"));
-            return "redirect:/check-attend/"+eventId;
+            return "redirect:/event/check-attend/"+eventId;
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
+
+    @PostMapping(value = "/reset-attend")
+    @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
+    public String resetAttendEvent(@RequestParam String eventId, RedirectAttributes redirectAttributes) {
+        eventService.resetAttendEvent(Integer.parseInt(eventId));
+        redirectAttributes.addFlashAttribute("alert", "success");
+        redirectAttributes.addFlashAttribute("message", "Làm mới lại danh sách điểm danh thành công!");
+        return "redirect:/event/check-attend/"+eventId;
+    }
+
 }

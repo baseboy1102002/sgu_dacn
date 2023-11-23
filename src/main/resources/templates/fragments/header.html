@@ -10,13 +10,38 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav ms-auto">
-                <a class="nav-link active" aria-current="page" th:href="@{/event}">Sự kiện</a>
-                <a sec:authorize="hasAuthority('TEACHER')" class="nav-link" th:href="@{/event/edit}">Tạo sự kiện</a>
-                <a class="nav-link" th:href="@{/event/my-event}">Lịch của tôi</a>
-                <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/info}">Tài khoản</a>
-                <a sec:authorize="isAuthenticated()" sec:authentication="principal.username" class="nav-link"></a>
-                <a sec:authorize="isAuthenticated()" class="nav-link" th:href="@{/logout}">Đăng xuất</a>
-                <a sec:authorize="isAnonymous()" class="nav-link" th:href="@{/login}">Đăng nhập</a>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" th:href="@{/event}">Sự kiện</a>
+                </li>
+                <li sec:authorize="hasAnyAuthority('TEACHER', 'ADMIN')" class="nav-item">
+                    <a class="nav-link" th:href="@{/event/edit}">Tạo sự kiện</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/event/my-event}">Lịch của tôi</a>
+                </li>
+                <li sec:authorize="isAnonymous()" class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">Đăng nhập</a>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span th:text="|Xin chào, ${#authentication.principal.username}|"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/user/info}"><i class="fa-regular fa-user"></i> Tài khoản</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <th:block sec:authorize="hasAuthority('ADMIN')">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/logout}"><i class="fa-solid fa-gear"></i> Trang quản trị</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        </th:block>
+                        <li>
+                            <a class="dropdown-item" th:href="@{/logout}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+                        </li>
+                    </ul>
+                </li>
             </div>
         </div>
     </div>

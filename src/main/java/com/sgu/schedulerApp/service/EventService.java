@@ -22,11 +22,15 @@ public interface EventService {
 
     void dismissEvent(int eventId);
 
-    Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId);
+//    Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId);
 
     Page<EventDto> findAllEventWithSearchAndPaging(FilterDto filterDto, String keyword, int pagenum);
 
     EventDto saveEvent(EventDto eventDto);
+
+    public List<EventDto> getUserEvents(String timeType);
+
+    public Page<EventDto> getUserEventsPageable(int pagenum, String timeType);
 
     List<StudentInfoDto> getAllStudentAttendEvent(int eventId);
 
@@ -40,4 +44,5 @@ public interface EventService {
 
     public HashMap checkAttendEvent(int eventId, String studentCode);
 
+    public void resetAttendEvent(int eventId);
 }

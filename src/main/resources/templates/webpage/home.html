@@ -33,8 +33,8 @@
       <h4 class="col-sm-12 col-md-6 col-lq-6 col-xl-8">DANH SÁCH SỰ KIỆN</h4>
       <div class="col-sm-12 col-md-6 col-lg-6 col-xl-4 ms-auto">
         <div class="input-group">
-          <button type="button" class="input-group-text" data-bs-toggle="collapse"
-                  data-bs-target="#filterPanel"><i class="fa-solid fa-filter me-1"></i>Nâng cao
+          <button type="button" class="input-group-text" data-bs-toggle="collapse" data-bs-target="#filterPanel">
+            <i class="fa-solid fa-sliders"></i>&nbsp; Nâng cao
           </button>
           <input type="text" class="form-control" id="keyword_input" placeholder="Tìm" />
           <button id="button-search" type="button" class="btn btn-primary"><i class="fas fa-search"></i></button>
@@ -48,7 +48,7 @@
           <h5>Bộ lọc tìm kiếm</h5>
           <div class="d-flex w-50 mx-auto justify-content-evenly align-items-center">
                 <span sec:authorize="hasAuthority('STUDENT')">
-                  Chỉ hiển thị các sự kiện có thể tham gia
+                  Không trùng lịch
                   <label class="switch">
                     <input id="isOnlyAttainable_checkbox" type="checkbox">
                     <span class="slider round"></span>
@@ -56,7 +56,7 @@
                 </span>
           </div>
           <div class="d-flex w-50 mx-auto justify-content-center align-items-center">
-            <button type="button" class="btn btn-outline-primary btn-sm me-3">Reset</button>
+            <button type="button" class="btn btn-outline-primary btn-sm me-3"><i class="fa-solid fa-rotate"></i> Reset</button>
             <button id="button-filter" type="button" class="btn btn-primary btn-sm">Lọc</button>
           </div>
         </div>
@@ -147,14 +147,14 @@
               <div class="d-flex justify-content-between align-items-center">
                 <a th:href="@{/event/{id}(id=${event.id})}" class="btn btn-outline-primary"><i class="fa-regular fa-circle-question"></i> Chi tiết</a>
                 <div sec:authorize="isAnonymous()">
-                  <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
+                  <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')"><i class="fa-solid fa-person-running"></i> Tham gia</a>
                 </div>
                 <div sec:authorize="hasAuthority('STUDENT')">
                   <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
-                    <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}">Hủy tham gia</button>
+                    <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-up-right-from-square"></i> Rời khỏi</button>
                   </form>
                   <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
-                    <button type="button" class="btn btn-primary attend_btn" th:disabled="${event.isOutDated}">Tham gia</button>
+                    <button type="button" class="btn btn-primary attend_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-person-running"></i> Tham gia</button>
                   </form>
                 </div>
                 <th:block sec:authorize="hasAuthority('TEACHER')">
@@ -187,7 +187,7 @@
   </div>
 </div>
 
-<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
+<div th:replace="~{fragments/scripts}"></div>
 <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
 <script th:src="@{/webpage/plugins/select2/js/select2.min.js}"></script>
 <script th:src="@{/webpage/plugins/twbsPagination/jquery.twbsPagination.min.js}"></script>

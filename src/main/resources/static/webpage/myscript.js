@@ -155,6 +155,20 @@ $(document).ready(function () {
         $(".dismiss_form[data-event-id='"+eventId+"']").submit()
     })
 
+    $(".delete_btn").each(function (index, element) {
+        $(element).on('click', function(e) {
+            let eventId = $(getParentElement(element, '.delete_form')).data('event-id')
+            $('#delete_modal').data('event-id', eventId)
+            $('#delete_modal').modal('show')
+        })
+    })
+
+    $('#delete_confirm').click(function (e) {
+        e.preventDefault();
+        let eventId = $('#delete_modal').data('event-id')
+        $(".delete_form[data-event-id='"+eventId+"']").submit()
+    })
+
 })
 
 $("#searchform").submit(function (e) {

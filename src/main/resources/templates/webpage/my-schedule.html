@@ -17,7 +17,7 @@
   </head>
   <body>
     <!--  Header -->
-    <div th:replace="fragments/header"></div>
+    <div th:replace="~{fragments/header}"></div>
     <!--  Header -->
 
     <div class="container pt-4">
@@ -73,7 +73,8 @@
               <div class="row g-4 row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3">
                 <th:block th:each="event: ${eventPageable}">
                   <div class="col">
-                    <div class="card border-0 shadow">
+                    <div class="card border-0 shadow" th:classappend="${event.isOutDated}?ribbon-parent:'' ">
+                      <p th:if="${event.isOutDated}" class="ribbon">Hết hạn</p>
                       <div class="card-body">
                         <h5 class="card-title text-line-2" th:text="${event.name}"></h5>
                         <div class="d-flex justify-content-between">
@@ -81,23 +82,25 @@
                           <h6 class="card-subtitle mb-2 text-muted" th:text="${event.startTime} + '-' + ${event.endTime}"></h6>
                         </div>
                         <p class="card-text text-line-3" th:text="${event.description}"></p>
-                        <div class="row">
-                          <div class="col-6">
-                            <a th:href="@{/event/my-event/{id}(id=${event.id})}" class="btn btn-outline-primary">Xem chi tiết</a>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <a th:href="@{/event/my-event/{id}(id=${event.id})}" class="btn btn-outline-primary"><i class="fa-regular fa-circle-question"></i> Chi tiết</a>
+                          <div sec:authorize="hasAuthority('STUDENT')">
+                            <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+                              <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-up-right-from-square"></i> Rời khỏi</button>
+                            </form>
                           </div>
-                          <div class="col-6 text-end">
-                            <div sec:authorize="hasAuthority('STUDENT')">
-                              <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
-                                <button type="button" class="btn btn-danger dismiss_btn">Hủy tham gia</button>
-                              </form>
-                            </div>
-                            <div sec:authorize="hasAuthority('TEACHER')">
-                              <a th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
-                            </div>
-                            <div sec:authorize="hasAuthority('ADMIN')">
-                              <a th:href="@{/event/edit/{id}(id=${event.id})}" class="btn btn-warning">Chỉnh sửa</a>
-                            </div>
-                          </div>
+                          <th:block sec:authorize="hasAuthority('TEACHER')">
+                            <a class="btn btn-warning" th:if="${event.createStatus}" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
+                            <form class="delete_form" th:if="${event.createStatus}" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+                              <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
+                            </form>
+                          </th:block>
+                          <th:block sec:authorize="hasAuthority('ADMIN')">
+                            <a class="btn btn-warning" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
+                            <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+                              <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
+                            </form>
+                          </th:block>
                         </div>
                       </div>
                     </div>
@@ -119,17 +122,14 @@
             </div>
 
             <div class="tab-pane fade" id="tab-calendar">
-              <div id="calendar">
-
-              </div>
+              <div id="calendar"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-    <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    <div th:replace="~{fragments/scripts}"></div>
     <script th:src="@{/webpage/plugins/twbsPagination/jquery.twbsPagination.min.js}"></script>
     <script th:src="@{/webpage/plugins/fullCalendar/fullcalendar-6.1.9/dist/index.global.min.js}"></script>
     <script th:inline="javascript">

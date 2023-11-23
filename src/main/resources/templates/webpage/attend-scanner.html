@@ -24,7 +24,18 @@
     <div th:replace="~{fragments/toast}"></div>
     <!--   Toast   -->
 
+    <form id="reset_form" method="post" th:action="@{/event/reset-attend}">
+        <input type="hidden" name="eventId" th:value="${eventId}">
+    </form>
+
     <div class="row">
+        <div class="col-12 text-center">
+            <h5>ĐIỂM DANH SINH VIÊN</h5>
+        </div>
+        <div class="col-12 text-center mb-3">
+            <a th:href="@{/event/attend-list/{id}(id=${eventId})}" class="btn btn-outline-primary me-5"><i class="fa-solid fa-users"></i> Quay lại DSSV</a>
+            <button type="button" id="btn_reset_attend" class="btn btn-danger"><i class="fa-solid fa-rotate-left"></i> Điểm danh lại</button>
+        </div>
         <div class="col-12 col-md-6">
             <video id="scanner" width="100%"></video>
             <!--   Alert   -->
@@ -63,14 +74,13 @@
                 </table>
             </th:block>
             <th:block th:unless="${students != null}">
-                <h3 class="text-center">Danh sách trống.</h3>
+                <h5 class="text-center fw-normal">Danh sách trống.</h5>
             </th:block>
         </div>
     </div>
 
 </div>
-<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<div th:replace="~{fragments/scripts}"></div>
 <script th:inline="javascript">
     $(document).ready(function () {
         let scanner = new Instascan.Scanner({ video:document.getElementById('scanner') })
@@ -78,16 +88,21 @@
             $('#qr_input').val(value);
             $('#qr_form').submit();
         })
-    })
-    Instascan.Camera.getCameras().then( function(cameras) {
-        if (cameras.length>0) {
-            scanner.start(cameras[0])
-        } else {
+        Instascan.Camera.getCameras().then( function(cameras) {
+            if (cameras.length>0) {
+                scanner.start(cameras[0])
+            } else {
+                showToast('err')
+            }
+        }).catch((err) => {
             showToast('err')
-        }
-    }).catch((err) => {
-        showToast('err')
+        })
+
+        $('#btn_reset_attend').click(function(e) {
+            $('#reset_form').submit()
+        })
     })
+
     function showToast(message) {
         $("#toast .toast-body").text(message);
         const toast = new bootstrap.Toast($("#toast"))

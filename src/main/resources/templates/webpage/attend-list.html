@@ -21,8 +21,9 @@
 
     <h4 class="text-center mb-3">Danh sách sinh viên tham dự</h4>
     <div class="text-center mb-4">
-        <a th:href="@{{id}/students/export-excel(id=${eventId})}" class="btn btn-primary me-5"><i class="fa-solid fa-print"></i> In danh sách</a>
-        <a th:href="@{/event/check-attend/{id}(id=${eventId})" class="btn btn-primary"><i class="fa-solid fa-user-check"></i> Điểm danh</a>
+        <a th:href="@{/event/{id}(id=${eventId})}" class="btn btn-outline-primary me-5">Quay lại sự kiện</a>
+        <a th:href="@{{id}/students/export-excel(id=${eventId})}" class="btn btn-success me-5"><i class="fa-solid fa-print"></i> Xuất Excel</a>
+        <a th:href="@{/event/check-attend/{id}(id=${eventId})}" class="btn btn-primary"><i class="fa-solid fa-user-check"></i> Điểm danh</a>
     </div>
     <div class="col-12 col-md-8 col-lg-6 mx-auto">
         <table class="table table-striped">
@@ -50,7 +51,6 @@
     </div>
 
 </div>
-<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<div th:replace="~{fragments/scripts}"></div>
 </body>
 </html>

@@ -77,7 +77,7 @@
         <div class="col-9 text-secondary" th:text="${event.roomCode} + '-' + ${event.departmentName}"></div>
       </div>
       <hr>
-      <div class="text-center text-lg-end">
+      <div class="d-flex justify-content-between justify-content-lg-end align-items-center">
         <div sec:authorize="isAnonymous()">
           <a th:href="@{/event}" class="btn btn-outline-primary me-5">Quay lại</a>
           <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
@@ -85,29 +85,29 @@
         <div sec:authorize="hasAuthority('STUDENT')">
           <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
             <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
-            <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}">Hủy tham gia</button>
+            <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-up-right-from-square"></i> Rời khỏi</button>
           </form>
           <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
             <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
-            <button type="button" class="btn btn-primary attend_btn" th:disabled="${event.isOutDated}">Tham gia</button>
+            <button type="button" class="btn btn-primary attend_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-person-running"></i> Tham gia</button>
           </form>
         </div>
-        <div sec:authorize="hasAuthority('TEACHER')">
+        <th:block sec:authorize="hasAuthority('TEACHER')">
+          <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+          <a th:if="${event.createStatus}" th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5"><i class="fa-solid fa-users"></i> Xem DSSV</a>
+          <a class="btn btn-warning me-5" th:if="${event.createStatus}" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
+          <form class="delete_form" th:if="${event.createStatus}" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+            <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
+          </form>
+        </th:block>
+        <th:block sec:authorize="hasAuthority('ADMIN')">
+          <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
+          <a th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5"><i class="fa-solid fa-users"></i> Xem DSSV</a>
+          <a class="btn btn-warning me-5" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
           <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
-            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
-            <a th:if="${event.createStatus}" th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5">Xem danh sách</a>
-            <a class="btn btn-warning me-5" th:classappend="${event.isOutDated}?'disabled':'' " th:if="${event.createStatus}" th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-            <button type="button" th:if="${event.createStatus}" class="btn btn-danger me-5 delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
+            <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
           </form>
-        </div>
-        <div sec:authorize="hasAuthority('ADMIN')">
-          <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
-            <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
-            <a th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5">Xem danh sách</a>
-            <a class="btn btn-warning me-5" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-            <button type="button" class="btn btn-danger me-5 delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
-          </form>
-        </div>
+        </th:block>
       </div>
 
       <!--  MODAL  -->
@@ -115,8 +115,7 @@
       <!--  MODAL  -->
 
     </div>
-    <script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-    <script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+    <div th:replace="~{fragments/scripts}"></div>
     <script th:inline="javascript">
       function showToast(message) {
         $("#toast .toast-body").text(message);

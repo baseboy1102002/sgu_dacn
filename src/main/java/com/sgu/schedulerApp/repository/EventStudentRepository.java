@@ -4,6 +4,7 @@ import com.sgu.schedulerApp.entity.EventStudent;
 import com.sgu.schedulerApp.entity.EventStudentId;
 import com.sgu.schedulerApp.entity.StudentInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -20,5 +21,9 @@ public interface EventStudentRepository extends JpaRepository<EventStudent, Even
     List<EventStudent> getAllCheckedAttendStudent(int eventId);
 
     EventStudent findByEventStudentId_EventIdAndStudentInfo_StudentCode(int eventId, String studentCode);
+
+    @Modifying
+    @Query("update EventStudent ev set ev.checkAttended=false where ev.event.id=:eventId")
+    void resetCheckAttendEvent(int eventId);
 
 }

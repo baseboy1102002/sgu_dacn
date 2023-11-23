@@ -108,7 +108,6 @@ public class EventServiceImpl implements EventService {
                     eventId);
     }
 
-    @Override
     public Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId) {
         return eventRepository.existsByDateAndStartTimeLessThanAndEndTimeGreaterThanAndStudents_EventStudentId_StudentId(
                 date, endTime, startTime,studentId);
@@ -180,8 +179,9 @@ public class EventServiceImpl implements EventService {
                 roomCode, endTime, startTime, eventId);
     }
 
+    @Override
     public Page<EventDto> getUserEventsPageable(int pagenum, String timeType) {
-        Pageable pageable = PageRequest.of(pagenum-1,8);
+        Pageable pageable = PageRequest.of(pagenum-1,8, Sort.by(Sort.Direction.DESC, "date"));
         Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<String> currentUserRole = ((MyUserDetails) principal).getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
@@ -208,6 +208,7 @@ public class EventServiceImpl implements EventService {
         return events.map(e -> modelMapper.map(e, EventDto.class));
     }
 
+    @Override
     public List<EventDto> getUserEvents(String timeType) {
         Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<String> currentUserRole = ((MyUserDetails) principal).getAuthorities()
@@ -293,5 +294,11 @@ public class EventServiceImpl implements EventService {
                 return result;
             }
         } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+eventId, eventId);
+    }
+
+    @Override
+    @Transactional
+    public void resetAttendEvent(int eventId) {
+        eventStudentRepository.resetCheckAttendEvent(eventId);
     }
 }

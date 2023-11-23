@@ -100,8 +100,7 @@
         </form>
     </div>
 </div>
-<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<div th:replace="~{fragments/scripts}"></div>
 <script th:src="@{/webpage/plugins/select2/js/select2.min.js}"></script>
 <script th:inline="javascript">
     let faculties = [[${faculties}]]
@@ -336,7 +335,7 @@
             showToast('Thời gian bắt đầu và kết thúc không hợp lệ')
             e.preventDefault()
             return false;
-        } else if ( (startTime.getTime()+HalfHour) <= endTime.getTime() ) {
+        } else if ( endTime-startTime < HalfHour ) {
             showToast('Khoảng thời gian phải tối thiểu 15p')
             e.preventDefault()
             return false
