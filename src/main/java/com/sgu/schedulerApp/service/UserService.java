@@ -9,7 +9,7 @@ public interface UserService {
 
     UserDto updateUser(UserDto userDto);
 
-    Boolean isUserCodeExists(String userCode);
-
     Boolean changePassword(String oldPassword, String newPassword);
+
+    void saveUser(UserDto userDto);
 }

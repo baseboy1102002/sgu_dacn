@@ -108,7 +108,7 @@ public class EventServiceImpl implements EventService {
                     eventId);
     }
 
-    public Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId) {
+    private Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId) {
         return eventRepository.existsByDateAndStartTimeLessThanAndEndTimeGreaterThanAndStudents_EventStudentId_StudentId(
                 date, endTime, startTime,studentId);
     }
@@ -174,7 +174,7 @@ public class EventServiceImpl implements EventService {
         return modelMapper.map(savedEvent, EventDto.class);
     }
 
-    public boolean checkValidCreateEvent(LocalDate date, String roomCode, LocalTime endTime, LocalTime startTime, int eventId) {
+    private boolean checkValidCreateEvent(LocalDate date, String roomCode, LocalTime endTime, LocalTime startTime, int eventId) {
         return eventRepository.existsByDateAndRoom_CodeAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(date,
                 roomCode, endTime, startTime, eventId);
     }
@@ -261,9 +261,9 @@ public class EventServiceImpl implements EventService {
     public void sendDeleteEventEmail(int eventId, EventDto eventDto) {
         List<EventStudent> eventStudents = eventStudentRepository.getAllStudentAttendEvent(eventId);
         if (!eventStudents.isEmpty()) {
-            List<String> toEmails = eventStudents.stream().map(ev -> ev.getStudentInfo().getEmail()).toList();
+            List<String> toEmails = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getEmail()).toList();
             List<String> studentNames = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getFullName()).toList();
-            emailService.sendBulkEmails(toEmails, studentNames, eventDto);
+            emailService.sendEmailsWhenDeleteEvent(toEmails, studentNames, eventDto);
         } else return;
     }
 
@@ -293,7 +293,7 @@ public class EventServiceImpl implements EventService {
                 result.put("alert", "success");
                 return result;
             }
-        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+eventId, eventId);
+        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Sinh viên chưa tham gia sự kiện này để điểm danh!", studentCode);
     }
 
     @Override

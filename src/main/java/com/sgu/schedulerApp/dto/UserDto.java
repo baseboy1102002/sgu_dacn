@@ -18,7 +18,5 @@ public class UserDto {
     private String roleCode;
     private String fullName;
     private String userCode;
-
-//    for students
     private String email;
 }

@@ -31,7 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth ->
                 auth.requestMatchers("/event/my-event").authenticated()
-                        .requestMatchers("/", "/event/**", "/webpage/**" ,"/adminpage/**", "/api/**", "/error/**").permitAll()
+                        .requestMatchers("/", "/sign-up", "user/sign-up", "/event/**", "/webpage/**" ,"/adminpage/**", "/api/**", "/error/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(login -> login.loginPage("/login")

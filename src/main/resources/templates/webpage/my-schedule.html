@@ -45,8 +45,9 @@
                 class="fa-regular fa-calendar"></i> Lịch</button>
           </nav>
           <hr>
-          <button class="btn btn-primary w-100 mb-3" data-bs-toggle="collapse"
-                  data-bs-target="#filter-collapse">Lọc dữ liệu</button>
+          <button class="btn btn-primary w-100 mb-3" data-bs-toggle="collapse" data-bs-target="#filter-collapse">
+            <i class="fa-solid fa-sliders"></i> Lọc dữ liệu
+          </button>
           <div class="collapse" id="filter-collapse">
             <h5>Phân loại theo</h5>
             <div class="form-check form-switch">
@@ -71,7 +72,7 @@
           <div class="tab-content">
             <div class="tab-pane active show fade" id="tab-list">
               <div class="row g-4 row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3">
-                <th:block th:each="event: ${eventPageable}">
+                <th:block th:if="${eventPageable != null}" th:each="event: ${eventPageable}">
                   <div class="col">
                     <div class="card border-0 shadow" th:classappend="${event.isOutDated}?ribbon-parent:'' ">
                       <p th:if="${event.isOutDated}" class="ribbon">Hết hạn</p>
@@ -105,6 +106,9 @@
                       </div>
                     </div>
                   </div>
+                </th:block>
+                <th:block th:unless="${eventPageable != null}">
+                  <h5 class="text-center fw-normal">Bạn chưa tham gia sự kiện nào.</h5>
                 </th:block>
               </div>
 
@@ -174,7 +178,7 @@
         calendar.render();
 
         window.pagObj = $('#pagination').twbsPagination({
-          totalPages: totalPage,
+          totalPages: (totalPage==0)?1:totalPage,
           visiblePages: 5,
           startPage: currentPage,
           onPageClick: function (event, page) {

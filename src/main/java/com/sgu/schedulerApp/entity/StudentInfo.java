@@ -25,9 +25,6 @@ public class StudentInfo {
     @Column(name = "ma_sv")
     private String studentCode;
 
-    @Column(name = "email")
-    private String email;
-
     @OneToOne
     @JoinColumn(name = "id_tai_khoan")
     private User user;

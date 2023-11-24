@@ -45,9 +45,7 @@ public class EventController {
         FilterDto filterDto = searchDto.getFilterDto() == null ?
                 new FilterDto("", "", "", "", null, null, false)
                 : searchDto.getFilterDto();
-        String keyword = searchDto.getKeyword();
         searchDto.setFilterDto(filterDto);
-        searchDto.setKeyword(keyword);
         model.addAttribute("searchDto", searchDto);
 
         model.addAttribute("faculties", facultyService.findAll());
@@ -55,7 +53,7 @@ public class EventController {
         model.addAttribute("departments", departmentService.findAll());
         model.addAttribute("rooms", roomService.findAll());
 
-        Page<EventDto> eventDtos = eventService.findAllEventWithSearchAndPaging(filterDto, keyword, pagenum);
+        Page<EventDto> eventDtos = eventService.findAllEventWithSearchAndPaging(filterDto, searchDto.getKeyword(), pagenum);
         model.addAttribute("events", eventDtos.getContent());
         model.addAttribute("totalPage", eventDtos.getTotalPages());
         model.addAttribute("totalItem", eventDtos.getTotalElements());
@@ -109,7 +107,7 @@ public class EventController {
         int pagenum = Integer.parseInt(page.orElseGet(() -> "1"));
         String time = timeType.orElseGet(() -> "all");
         Page<EventDto> eventDtos = eventService.getUserEventsPageable(pagenum, time);
-        model.addAttribute("eventPageable", eventDtos.getContent());
+        model.addAttribute("eventPageable", eventDtos.getContent().isEmpty()? null:eventDtos.getContent());
         model.addAttribute("events", eventService.getUserEvents(time));
         model.addAttribute("totalPage", eventDtos.getTotalPages());
         model.addAttribute("page", pagenum);
@@ -123,7 +121,8 @@ public class EventController {
         if (id.isPresent()) {
             int eventId = id.get();
             model.addAttribute("eventId", eventId);
-            model.addAttribute("students", eventService.getAllStudentAttendEvent(eventId));
+            List<StudentInfoDto> students = eventService.getAllStudentAttendEvent(eventId);
+            model.addAttribute("students", students.isEmpty() ? null:students);
             return "webpage/attend-list";
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
@@ -244,9 +243,14 @@ public class EventController {
     public String checkAttendance(@PathVariable Optional<Integer> id, @RequestParam String studentCode, RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {
             int eventId = id.get();
-            HashMap result = eventService.checkAttendEvent(eventId, studentCode);
-            redirectAttributes.addFlashAttribute("alert", result.get("alert"));
-            redirectAttributes.addFlashAttribute("message", result.get("message"));
+            try {
+                HashMap result = eventService.checkAttendEvent(eventId, studentCode);
+                redirectAttributes.addFlashAttribute("alert", result.get("alert"));
+                redirectAttributes.addFlashAttribute("message", result.get("message"));
+            } catch (CustomErrorException  e) {
+                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("message", e.getMessage());
+            }
             return "redirect:/event/check-attend/"+eventId;
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
         <link rel="stylesheet" th:href="@{/webpage/customstyled.css}">
-        <title>Login page</title>
+        <title>Đăng nhập</title>
         <style>
             body {
               background-color: #F1F6FF;
@@ -17,8 +17,7 @@
 
         <!----------------------- Main Container -------------------------->
 
-        <div
-            class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="container d-flex justify-content-center align-items-center min-vh-100">
 
             <!----------------------- Login Container -------------------------->
 
@@ -26,19 +25,14 @@
 
                 <!--------------------------- Left Box ----------------------------->
 
-                <div
-                    class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
-                    style="background: #103cbe;">
+                <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
                     <div class="mb-3">
-                        <img th:src="@{/webpage/imglogin.png}" class="img-fluid"
-                            style="width: 250px;">
+                        <img th:src="@{/webpage/imglogin.png}" class="img-fluid" style="width: 250px;">
                     </div>
-                    <p class="text-white fs-2"
-                        style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">SGU
-                        Event Schedule</p>
-                    <small class="text-white text-wrap text-center"
-                        style="width: 17rem;font-family: 'Courier New', Courier, monospace;">Tham
-                        gia ngay app quản lý sự kiện sgu.</small>
+                    <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">SGU Event Schedule</p>
+                    <small class="text-white text-wrap text-center" style="width: 17rem;font-family: 'Courier New', Courier, monospace;">
+                        Tham gia ngay app quản lý sự kiện sgu.
+                    </small>
                 </div>
 
                 <!-------------------- ------ Right Box ---------------------------->
@@ -46,9 +40,26 @@
                 <div class="col-md-6 right-box">
                     <div class="row align-items-center">
                         <div class="header-text mb-4">
-                            <div th:if="${param.error}" class="alert alert-error">
-                                <span>Xác thực người dùng thất bại</span>
+                            <!--   Alert login error  -->
+                            <div th:if="${param.error}">
+                                <div class="row">
+                                    <div th:class="|alert alert-danger alert-dismissible fade show|" role="alert">
+                                        <span>Xác thực người dùng thất bại</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>
                             </div>
+                            <!--   Alert login error  -->
+                            <!--   Alert   -->
+                            <div th:if="${message != null}">
+                                <div class="row">
+                                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                                        <span th:text="${message}"></span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--   Alert   -->
                             <h2>Đăng nhập</h2>
                             <p>Chào mừng bạn quay trở lại</p>
                         </div>
@@ -59,32 +70,29 @@
                             <div class="input-group mb-1">
                                 <input type="password" name="password" value="" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu">
                             </div>
-                            <div
-                                class="input-group mb-5 d-flex justify-content-between">
+                            <div class="input-group mb-5 d-flex justify-content-between">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input"
-                                        id="formCheck">
-                                    <label for="formCheck"
-                                        class="form-check-label text-secondary"><small>Remember
-                                            Me</small></label>
+                                    <input type="checkbox" class="form-check-input" id="formCheck">
+                                    <label for="formCheck" class="form-check-label text-secondary">
+                                        <small>Remember Me</small>
+                                    </label>
                                 </div>
 <!--                                <div class="forgot">-->
 <!--                                    <small><a href="#">Quên mật khẩu?</a></small>-->
 <!--                                </div>-->
                             </div>
                             <div class="input-group mb-3">
-                                <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng
-                                    nhập</button>
+                                <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng nhập</button>
                             </div>
                         </form>
                         <div class="row text-center">
-                            <small>Chưa có tài khoản? <a href="#">Đăng ký</a></small>
+                            <small>Chưa có tài khoản? <a th:href="@{/sign-up}">Đăng ký</a></small>
                         </div>
                     </div>
                 </div>
 
             </div>
         </div>
-
+        <div th:replace="~{fragments/scripts}"></div>
     </body>
 </html>

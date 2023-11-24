@@ -28,9 +28,9 @@ public interface EventService {
 
     EventDto saveEvent(EventDto eventDto);
 
-    public List<EventDto> getUserEvents(String timeType);
+    List<EventDto> getUserEvents(String timeType);
 
-    public Page<EventDto> getUserEventsPageable(int pagenum, String timeType);
+    Page<EventDto> getUserEventsPageable(int pagenum, String timeType);
 
     List<StudentInfoDto> getAllStudentAttendEvent(int eventId);
 
@@ -38,11 +38,11 @@ public interface EventService {
 
     void deleteEvent(int id);
 
-    public void sendDeleteEventEmail(int eventId, EventDto eventDto);
+    void sendDeleteEventEmail(int eventId, EventDto eventDto);
 
-    public List<StudentInfoDto> getAllCheckedAttendStudent(int eventId);
+    List<StudentInfoDto> getAllCheckedAttendStudent(int eventId);
 
-    public HashMap checkAttendEvent(int eventId, String studentCode);
+    HashMap checkAttendEvent(int eventId, String studentCode);
 
-    public void resetAttendEvent(int eventId);
+    void resetAttendEvent(int eventId);
 }

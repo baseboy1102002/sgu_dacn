@@ -35,7 +35,7 @@
             <div class="mb-3 col-12 col-md-8">
                 <label for="fullname" class="form-label">Tên sự kiện <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="fullname" th:field="*{name}" required>
-                <div class="invalid-feedback">Vui lòng điền tên</div>
+                <div class="invalid-feedback">Không thể bỏ trống tên sự kiện</div>
             </div>
             <div class="mb-3 col-12 col-md-4">
                 <label for="date" class="form-label">Ngày diễn ra <span class="text-danger">*</span></label>
@@ -59,7 +59,7 @@
             <div class="mb-3 col-12">
                 <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
                 <textarea class="form-control" id="description" rows="6" th:field="*{description}" required></textarea>
-                <div class="invalid-feedback">Vui lòng điền mô tả</div>
+                <div class="invalid-feedback">Không thể bỏ trống mô tả</div>
             </div>
             <div class="col-6 mb-3">
                 <label for="department_select" class="form-label">Cơ sở<span class="text-danger">*</span></label>
@@ -298,20 +298,16 @@
     (() => {
         'use strict';
 
-      // Fetch all the forms we want to apply custom Bootstrap validation styles to
-      const forms = document.querySelectorAll('.needs-validation');
+        const form = document.querySelector('.needs-validation')
 
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms).forEach((form) => {
         form.addEventListener('submit', (event) => {
-          if (!form.checkValidity()) {
+            if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
-          }
-          form.classList.add('was-validated');
-        }, false);
-        });
-    })();
+            }
+            form.classList.add('was-validated');
+        }, false)
+    })()
 
     $("#event_form").submit(function (e) {
         const HalfHour = 30*60*1000
@@ -322,11 +318,6 @@
         const timeEndStr = $('#endTime').val()
         const startTime = new Date(`${dateStr} ${timeStartStr}`)
         const endTime = new Date(`${dateStr} ${timeEndStr}`)
-        console.log(startTime.toLocaleString())
-        console.log(currentDate.toLocaleString())
-        console.log("TEST start-curr: ", startTime.getTime()<currentDate.getTime())
-        console.log("TEST start-end: ", endTime.getTime()<startTime.getTime())
-        console.log("TEST 30min: ", endTime-startTime < HalfHour)
         if (startTime.getTime()<currentDate.getTime()) {
             showToast('Thời gian bắt đầu không hợp lệ')
             e.preventDefault()
@@ -340,7 +331,6 @@
             e.preventDefault()
             return false
         } else {
-            console.log("OK")
             $("input[name='departmentCode']").val($("#department_select").val());
             $("input[name='roomCode']").val($("#room_select").val());
             $("input[name='facultyCode']").val($("#faculty_select").val());

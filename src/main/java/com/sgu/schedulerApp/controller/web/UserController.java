@@ -1,6 +1,8 @@
 package com.sgu.schedulerApp.controller.web;
 
 import com.sgu.schedulerApp.dto.UserDto;
+import com.sgu.schedulerApp.exception.CustomErrorException;
+import com.sgu.schedulerApp.service.RoleService;
 import com.sgu.schedulerApp.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
 
     private final UserServiceImpl userService;
+    private final RoleService roleService;
 
     @GetMapping(value = "/info")
     public String getUserInfo(Model model) {
@@ -34,14 +37,15 @@ public class UserController {
 
     @PostMapping(value = "/update-info")
     public String updateUserInfo(Model model, @ModelAttribute("UserDto") UserDto userDto) {
-        UserDto newUser = userService.updateUser(userDto);
-        if (newUser != null) {
+        try {
+            UserDto newUser = userService.updateUser(userDto);
             model.addAttribute("message", "Cập nhật thông tin cho tài khoản người dùng thành công!");
             model.addAttribute("alert", "success");
             model.addAttribute("user", newUser);
             return "webpage/user-info";
-        } else {
+        } catch (CustomErrorException e) {
             model.addAttribute("alert" , "danger");
+            model.addAttribute("message", e.getMessage());
             model.addAttribute("userDto", userDto);
             return "webpage/user-update";
         }
@@ -59,6 +63,22 @@ public class UserController {
         } else {
             redirectAttributes.addFlashAttribute("alert", "danger");
             return "redirect:/user/change-password";
+        }
+    }
+
+    @PostMapping(value = "/sign-up")
+    public String registerUserAccount(Model model, @ModelAttribute("userDto") UserDto userDto) {
+        try {
+            userService.saveUser(userDto);
+            model.addAttribute("alert", "success");
+            model.addAttribute("message", "Đăng ký tài khoản thành công!");
+            return "webpage/login";
+        } catch (CustomErrorException e) {
+            model.addAttribute("alert", "danger");
+            model.addAttribute("message", e.getMessage());
+            model.addAttribute("userDto", userDto);
+            model.addAttribute("roles", roleService.findAllRoleExceptAdmin());
+            return "webpage/sign-up";
         }
     }
 }

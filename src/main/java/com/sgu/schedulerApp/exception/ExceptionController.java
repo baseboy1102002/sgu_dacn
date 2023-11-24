@@ -45,7 +45,7 @@ public class ExceptionController {
             throw exception;
         String msg = exception.getMessage();
         model.addAttribute("msg", msg);
-        model.addAttribute("httpStatus", HttpStatus.INTERNAL_SERVER_ERROR);
+        model.addAttribute("httpStatus", exception.getLocalizedMessage());
         return "errorpage/error";
     }
 }

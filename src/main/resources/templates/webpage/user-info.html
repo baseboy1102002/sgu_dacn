@@ -51,12 +51,12 @@
                                     <div class="col-9 text-secondary" th:text="${user.fullName}"></div>
                                 </div>
                                 <hr>
+                                <div class="row">
+                                    <div class="col-3">Email</div>
+                                    <div class="col-9 text-secondary" th:text="${user.email}"></div>
+                                </div>
+                                <hr>
                                 <th:block sec:authorize="hasAuthority('STUDENT')">
-                                    <div class="row">
-                                        <div class="col-3">Email</div>
-                                        <div class="col-9 text-secondary" th:text="${user.email}"></div>
-                                    </div>
-                                    <hr>
                                     <div class="row">
                                         <div class="col-3">Mã số sinh viên</div>
                                         <div class="col-9 text-secondary" th:text="${user.userCode}"></div>

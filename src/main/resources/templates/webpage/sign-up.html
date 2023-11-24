@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/customstyled.css}">
+    <title>Đăng ký</title>
+    <style>
+        body {
+          background-color: #F1F6FF;
+        }
+    </style>
+</head>
+<body>
+
+<!----------------------- Main Container -------------------------->
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+
+    <!----------------------- Login Container -------------------------->
+
+    <div class="row border rounded-5 p-3 bg-white shadow box-area">
+
+        <!--------------------------- Left Box ----------------------------->
+
+        <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
+            <div class="mb-3">
+                <img src="../resources/imglogin.png" class="img-fluid" style="width: 250px;">
+            </div>
+            <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">
+                SGU Event Schedule
+            </p>
+            <small class="text-white text-wrap text-center" style="width: 17rem;font-family: 'Courier New', Courier, monospace;">
+                Đăng ký trở thành thành viên tại SGU Event Scheduler.
+            </small>
+        </div>
+
+        <!-------------------- ------ Right Box ---------------------------->
+
+        <div class="col-md-6 right-box">
+            <div class="row align-items-center">
+                <div class="header-text mb-2">
+                    <!--   Alert   -->
+                    <div th:if="${message != null}">
+                        <div class="row">
+                            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                                <span th:text="${message}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--   Alert   -->
+                    <h2>Tạo tài khoản</h2>
+                    <p>Chào mừng bạn đến với ngôi nhà SGU</p>
+                </div>
+                <form id="signupForm" th:action="@{/user/sign-up}" method="post" th:object="${userDto}" class="needs-validation" novalidate>
+                    <input type="hidden" th:field="*{roleCode}">
+                    <div class="input-group mb-3">
+                        <input th:field="*{fullName}" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Họ và tên" required>
+                        <div class="invalid-feedback">Vui lòng điền họ tên</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input th:field="*{username}" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Tên đăng nhập" required>
+                        <div class="invalid-feedback">Vui lòng điền tên tài khoản</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input th:field="*{password}" type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required>
+                        <div class="invalid-feedback">Vui lòng điền tên mật khẩu</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select id="select_role" class="form-control form-control-lg bg-light fs-6" required>
+                            <option value selected disabled hidden>Bạn là</option>
+                            <th:block th:each="role: ${roles}">
+                                <option th:value="${role.roleCode}" th:text="${role.roleName}"></option>
+                            </th:block>
+                        </select>
+                        <div class="invalid-feedback">Vui lòng chọn vai trò</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input th:field="*{userCode}" type="text" id="input_userCode" class="form-control form-control-lg bg-light fs-6" placeholder="Mã số sinh viên" required>
+                        <div class="invalid-feedback">Vui lòng không bỏ trống</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input th:field="*{email}" type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" required>
+                        <div class="invalid-feedback">Vui lòng điền email</div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng ký</button>
+                    </div>
+                </form>
+                <div class="row text-center">
+                    <small>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div th:replace="~{fragments/scripts}"></div>
+<script th:inline="javascript">
+    (() => {
+        'use strict';
+
+        const form = document.querySelector('.needs-validation');
+
+        form.addEventListener('submit', (event) => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false)
+    })()
+
+    $(document).ready(function () {
+        $("#select_role").val($("input[name='roleCode']").val())
+        $('#select_role').on('change', function() {
+            if (this.value==="STUDENT")
+                $('#input_userCode').attr("placeholder", "Mã số sinh viên")
+            else if (this.value==="TEACHER")
+                $('#input_userCode').attr("placeholder", "Mã giảng viên")
+        })
+    });
+
+    $('#signupForm').submit(function (e) {
+        $("input[name='roleCode']").val($("#select_role").val());
+        return true;
+    })
+
+</script>
+</body>
+</html>

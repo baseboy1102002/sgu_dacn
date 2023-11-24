@@ -27,12 +27,16 @@ public class User {
     @Column(name = "ho_ten")
     private String fullName;
 
-    @OneToMany(mappedBy = "user")
-    private List<Event> events;
+    @Column(name = "email")
+    private String email;
 
     @ManyToOne
     @JoinColumn(name = "id_vai_tro")
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Event> events;
+
 
     @OneToOne(mappedBy = "user")
     private StudentInfo studentInfo;

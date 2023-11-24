@@ -101,33 +101,12 @@ public class ModelMapperConfig {
                 @Override
                 protected String convert(User user) {
                     String userCode = "";
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    Object principal = authentication.getPrincipal();
-                    if (principal instanceof MyUserDetails) {
-                        Set<String> currentUserRole = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
-                        if (currentUserRole.contains("STUDENT"))
-                            return user.getStudentInfo().getStudentCode();
-                        else if (currentUserRole.contains("TEACHER")) {
-                            return user.getTeacherInfo().getTeacherCode();
-                        }
+                    if (user.getRole().getRoleCode().equals("STUDENT"))
+                        return user.getStudentInfo().getStudentCode();
+                    else if (user.getRole().getRoleCode().equals("TEACHER")) {
+                        return user.getTeacherInfo().getTeacherCode();
                     }
                     return userCode;
-                }
-            };
-
-    Converter<StudentInfo, String> toStudentEmail = new
-            AbstractConverter<StudentInfo, String>() {
-                @Override
-                protected String convert(StudentInfo studentInfo) {
-                    String email = "";
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    Object principal = authentication.getPrincipal();
-                    if (principal instanceof MyUserDetails) {
-                        Set<String> currentUserRole = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
-                        if (currentUserRole.contains("STUDENT"))
-                            return studentInfo.getEmail();
-                    }
-                    return email;
                 }
             };
 
@@ -136,7 +115,6 @@ public class ModelMapperConfig {
         protected void configure()
         {
             using(toUserCode).map(source).setUserCode("");
-            using(toStudentEmail).map(source.getStudentInfo()).setEmail("");
         }
     };
 
