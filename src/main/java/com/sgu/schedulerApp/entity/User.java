@@ -30,6 +30,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "token")
+    private String token;
+
     @ManyToOne
     @JoinColumn(name = "id_vai_tro")
     private Role role;

@@ -11,6 +11,28 @@
         body {
           background-color: #F1F6FF;
         }
+        .description-wrapper {
+          max-height: 180px;
+          overflow-y: auto;
+        }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+      }
+
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
       </style>
   </head>
   <body>
@@ -19,19 +41,8 @@
     <!--  Header -->
     <div class="container pt-4 pb-4">
 
-      <!--   Toast   -->
-      <div th:replace="~{fragments/toast}"></div>
-      <!--   Toast   -->
-
       <!--   Alert   -->
-      <div th:if="${message != null}">
-        <div class="row">
-          <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-            <span th:text="${message}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        </div>
-      </div>
+      <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
       <!--   Alert   -->
 
       <h3 class="text-center text-lg-start">Thông tin của sự kiện <span th:if="${event.isOutDated}" class="badge text-bg-danger">Sự kiện đã hết hạn</span></h3>
@@ -42,7 +53,7 @@
       <hr>
       <div class="row">
         <div class="col-3">Thông tin mô tả</div>
-        <div class="col-9 text-secondary" th:text="${event.description}"></div>
+        <div class="col-9 text-secondary description-wrapper" th:text="${event.description}"></div>
       </div>
       <hr>
       <div class="row">
@@ -80,14 +91,14 @@
       <div class="d-flex justify-content-between justify-content-lg-end align-items-center">
         <div sec:authorize="isAnonymous()">
           <a th:href="@{/event}" class="btn btn-outline-primary me-5">Quay lại</a>
-          <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng')">Tham gia</a>
+          <a class="btn btn-primary" onclick="showToast('Vui lòng xác thực để sử dụng chức năng', 'warning')">Tham gia</a>
         </div>
         <div sec:authorize="hasAuthority('STUDENT')">
-          <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+          <form th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
             <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
             <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-up-right-from-square"></i> Rời khỏi</button>
           </form>
-          <form class="attend_form" th:data-event-id="${event.id}" th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
+          <form th:unless="${event.attendstatus}" th:action="@{/event/attend/{eventId}(eventId=${event.id})}" method="post">
             <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
             <button type="button" class="btn btn-primary attend_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-person-running"></i> Tham gia</button>
           </form>
@@ -96,7 +107,7 @@
           <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
           <a th:if="${event.createStatus}" th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5"><i class="fa-solid fa-users"></i> Xem DSSV</a>
           <a class="btn btn-warning me-5" th:if="${event.createStatus}" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-          <form class="delete_form" th:if="${event.createStatus}" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+          <form th:if="${event.createStatus}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
             <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
           </form>
         </th:block>
@@ -104,7 +115,7 @@
           <a onclick="history.go(-1)" class="btn btn-outline-primary me-5">Quay lại</a>
           <a th:href="@{/event/attend-list/{id}(id=${event.id})}" class="btn btn-outline-success me-5"><i class="fa-solid fa-users"></i> Xem DSSV</a>
           <a class="btn btn-warning me-5" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-          <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+          <form th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
             <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
           </form>
         </th:block>
@@ -117,62 +128,74 @@
     </div>
     <div th:replace="~{fragments/scripts}"></div>
     <script th:inline="javascript">
-      function showToast(message) {
-        $("#toast .toast-body").text(message);
-        const toast = new bootstrap.Toast($("#toast"))
-        toast.show()
-      }
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+      })
 
-      function getParentElement(element, parent) {
-        while (element.parentElement) {
-            if (element.parentElement.matches(parent)) {
-                return element.parentElement;
-            }
-            element = element.parentElement;
-        }
+      const confirmDialog = Swal.mixin({
+        showCancelButton: true,
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "Hủy"
+      })
+
+      function showToast(message, type) {
+        Toast.fire({
+          icon: type,
+          title: message
+        })
       }
 
       $(document).ready(function () {
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+            Toast.fire({
+                icon: alertData,
+                title: $('.sw-alert').data('message')
+            })
+        }
         $(".attend_btn").each(function (index, element) {
             $(element).on('click', function(e) {
-                let eventId = $(getParentElement(element, '.attend_form')).data('event-id')
-                $('#attend_modal').data('event-id', eventId)
-                $('#attend_modal').modal('show')
+                const form = $(this).closest('form')
+                confirmDialog.fire({
+                    title: "Bạn muốn đăng ký tham gia sự kiện này ?",
+                    icon: "question"
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $(form).submit();
+                    }
+                });
             })
-        })
-
-        $('#attend_confirm').click(function (e) {
-            e.preventDefault();
-            let eventId = $('#attend_modal').data('event-id')
-            $(".attend_form[data-event-id='"+eventId+"']").submit()
         })
 
         $(".dismiss_btn").each(function (index, element) {
             $(element).on('click', function(e) {
-                let eventId = $(getParentElement(element, '.dismiss_form')).data('event-id')
-                $('#dismiss_modal').data('event-id', eventId)
-                $('#dismiss_modal').modal('show')
+                const form = $(this).closest('form')
+                confirmDialog.fire({
+                    title: "Bạn muốn rút khỏi sự kiện này ?",
+                    icon: "question"
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $(form).submit();
+                    }
+                });
             })
-        })
-
-        $('#dismiss_confirm').click(function (e) {
-            e.preventDefault();
-            let eventId = $('#dismiss_modal').data('event-id')
-            $(".dismiss_form[data-event-id='"+eventId+"']").submit()
         })
 
         $(".delete_btn").each(function (index, element) {
             $(element).on('click', function(e) {
-                let eventId = $(getParentElement(element, '.delete_form')).data('event-id')
-                $('#delete_modal').data('event-id', eventId)
-                $('#delete_modal').modal('show')
+                const form = $(this).closest('form')
+                confirmDialog.fire({
+                    title: "Bạn có chắc muốn xóa bỏ sự kiện này ?",
+                    icon: "warning"
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $(form).submit();
+                    }
+                });
             })
-        })
-
-        $('#delete_confirm').click(function (e) {
-            e.preventDefault();
-            let eventId = $('#delete_modal').data('event-id')
-            $(".delete_form[data-event-id='"+eventId+"']").submit()
         })
       });
 

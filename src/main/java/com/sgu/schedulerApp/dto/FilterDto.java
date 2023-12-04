@@ -22,6 +22,7 @@ public class FilterDto {
     @DateTimeFormat(pattern = "YYYY-MM-dd")
     private LocalDate endTime;
 
-//  for students's view
+//  for student's view
     private Boolean isOnlyAttainable;
+    private Boolean isOnlyNonExpired;
 }

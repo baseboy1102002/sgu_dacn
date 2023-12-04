@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         if (user.isPresent()) {
             User u = user.get();
             return modelMapper.map(u, UserDto.class);
-        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy user với id: "+userId ,userId);
+        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy user với id: "+userId);
     }
 
     @Override
@@ -124,5 +124,30 @@ public class UserServiceImpl implements UserService {
             return studentRepository.existsByStudentCode(userCode);
         }
         return false;
+    }
+
+    @Override
+    public void setUserTokenByEmail(String token, String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setToken(token);
+            userRepository.save(user);
+        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tồn tại tài khoản với email: "+email);
+    }
+
+    @Override
+    public User findByUserToken(String token) {
+        User user = userRepository.findByToken(token);
+        if (user != null) {
+            return user;
+        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Mã token không hợp lệ.");
+    }
+
+    @Override
+    public void resetPassword(User user, String newPassword) {
+        String encodedPass = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPass);
+        user.setToken(null);
+        userRepository.save(user);
     }
 }

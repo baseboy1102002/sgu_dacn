@@ -8,9 +8,10 @@ import lombok.*;
 @Setter
 @ToString
 public class ClassDto {
+
     private int id;
     private String name;
     private String code;
     private String facultyCode;
-    private String facultyName;
+//    private String facultyName;
 }

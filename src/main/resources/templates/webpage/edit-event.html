@@ -9,23 +9,12 @@
 <!--  Header -->
 <div class="container pt-4 pb-4">
 
-    <!--   Toast   -->
-    <div th:replace="~{fragments/toast}"></div>
-    <!--   Toast   -->
-
     <!--   Alert   -->
-    <div th:if="${message != null}">
-        <div class="row">
-            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                <span th:text="${message}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
+    <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
     <!--   Alert   -->
 
     <div class="col-12 col-md-8 col-lg-6 mx-auto">
-        <h3 class="text-center" th:text="${CreateOrUpdate}"></h3>
+        <h3 class="text-center" th:text="${isUpdate? 'Cập nhật sự kiện':'Tạo sự kiện mới'}"></h3>
         <form id="event_form" th:action="@{/event/edit}" method="post" th:object="${eventDto}" class="w-100 row g-2 g-md-4 mx-auto needs-validation" novalidate>
             <input type="hidden" th:field="*{id}">
             <input type="hidden" th:field="*{departmentCode}">
@@ -94,7 +83,7 @@
                     <button type="button" class="btn btn-danger">Hủy</button>
                 </div>
                 <div class="col-6 text-center">
-                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                    <button type="submit" class="btn btn-primary" th:text="${isUpdate? 'Cập nhật':'Tạo sự kiện'}"></button>
                 </div>
             </div>
         </form>
@@ -109,7 +98,43 @@
     let rooms = [[${rooms}]]
     let editMode = [[${editMode}]]
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+    })
+
+    function matchCustom(params, data) {
+        // If there are no search terms, return all of the data
+        if ($.trim(params.term) === '') {
+          return data;
+        }
+        // Do not display the item if there is no 'text' property
+        if (typeof data.text === 'undefined') {
+          return null;
+        }
+        // search by value
+        if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+          return data;
+        }
+        // search by id
+        if (data.id.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+          return data;
+        }
+        // Return `null` if the term should not be displayed
+        return null;
+    }
+
     $(document).ready(function () {
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+            Toast.fire({
+                icon: alertData,
+                title: $('.sw-alert').data('message')
+            })
+        }
+
         $('#date').attr( {"min" : new Date().toLocaleDateString("en-CA", {timeZone: 'Asia/Ho_Chi_Minh'}) })
 
         let faculty_data = $.map(faculties, function (obj) {
@@ -128,17 +153,20 @@
             return obj;
         });
 
-        let room_data
-
         $("#faculty_select").select2({
-            data: faculty_data
+            data: faculty_data,
+            matcher: matchCustom
         })
         $("#class_select").select2({
-            data: class_data
+            data: class_data,
+            matcher: matchCustom
         })
         $("#department_select").select2({
-            data: department_data
+            data: department_data,
+            matcher: matchCustom
         })
+
+        let room_data
 
         if (editMode === 'create') {
             room_data = $.map(rooms, function (obj) {
@@ -252,7 +280,8 @@
             }
             $("#class_select").empty()
             $("#class_select").select2({
-                data: class_data
+                data: class_data,
+                matcher: matchCustom
             })
         })
 
@@ -319,15 +348,15 @@
         const startTime = new Date(`${dateStr} ${timeStartStr}`)
         const endTime = new Date(`${dateStr} ${timeEndStr}`)
         if (startTime.getTime()<currentDate.getTime()) {
-            showToast('Thời gian bắt đầu không hợp lệ')
+            showToast('Thời gian bắt đầu không hợp lệ', 'warning')
             e.preventDefault()
             return false;
         } else if (endTime.getTime()<startTime.getTime()) {
-            showToast('Thời gian bắt đầu và kết thúc không hợp lệ')
+            showToast('Thời gian bắt đầu và kết thúc không hợp lệ', 'warning')
             e.preventDefault()
             return false;
         } else if ( endTime-startTime < HalfHour ) {
-            showToast('Khoảng thời gian phải tối thiểu 15p')
+            showToast('Khoảng thời gian phải tối thiểu 15p', 'warning')
             e.preventDefault()
             return false
         } else {
@@ -339,10 +368,11 @@
         }
     })
 
-    function showToast(message) {
-        $("#toast .toast-body").text(message);
-        const toast = new bootstrap.Toast($("#toast"))
-        toast.show()
+    function showToast(message, type) {
+        Toast.fire({
+            icon: type,
+            title: message
+        })
     }
 </script>
 </body>

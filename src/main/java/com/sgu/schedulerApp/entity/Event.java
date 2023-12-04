@@ -60,11 +60,4 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<EventStudent> students;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "sv_tham_du_sk",
-//            joinColumns = @JoinColumn(name = "id_sk"),
-//            inverseJoinColumns = @JoinColumn(name = "id_sv")
-//    )
-//    private List<StudentInfo> students;
 }

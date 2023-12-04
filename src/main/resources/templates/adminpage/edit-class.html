@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!--Head-->
+<div th:replace="~{fragments/head-admin}"></div>
+<!--Head-->
+
+<body>
+<div class="layer"></div>
+<!-- ! Body -->
+<a class="skip-link sr-only" href="#skip-target">Skip to content</a>
+<div class="page-flex">
+
+    <!-- ! Sidebar -->
+    <div th:replace="~{fragments/sidebar-admin}"></div>
+    <!-- ! Sidebar -->
+
+    <div class="main-wrapper">
+
+        <!-- ! Main nav -->
+        <div th:replace="~{fragments/header-admin}"></div>
+        <!-- ! Main nav -->
+
+        <!-- ! Main -->
+        <div class="main">
+            <div class="container">
+
+                <!--   Alert   -->
+                <div th:if="${message != null}">
+                    <div class="row px-lg-5 mx-lg-5">
+                        <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                            <span th:text="${message}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+                <!--   Alert   -->
+
+                <h4 class="main-title text-center text-uppercase" th:text="${isUpdate? 'Chỉnh sửa Lớp':'Tạo Lớp'}"></h4>
+                <div class="px-sm-0 px-lg-5 mx-lg-5">
+                    <form id="class_form" th:action="@{/admin/faculty-and-class/edit-class}" th:object="${classDto}" method="post" class="needs-validation" novalidate>
+                        <input type="hidden" th:field="*{id}">
+                        <input type="hidden" th:field="*{facultyCode}">
+                        <div class="mb-3 col-12">
+                            <label for="classname" class="form-label">Tên Lớp <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="classname" th:field="*{name}" required>
+                            <div class="invalid-feedback">Vui lòng điền tên lớp</div>
+                        </div>
+                        <div class="mb-3 col-12">
+                            <label for="classcode" class="form-label">Mã Lớp <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="classcode" th:field="*{code}" required>
+                            <div class="invalid-feedback">Vui lòng điền mã lớp</div>
+                        </div>
+                        <div class="mb-5 col-12">
+                            <label for="select_kh" class="form-label">Thuộc Khoa <span class="text-danger">*</span></label>
+                            <select id="select_kh" class="form-control" required>
+                                <option value selected disabled hidden>Chọn Khoa</option>
+                                <th:block th:each="f: ${faculties}">
+                                    <option th:value="${f.code}" th:text="${f.name}"></option>
+                                </th:block>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn một Khoa</div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary" th:text="${isUpdate? 'Cập nhật':'Tạo Lớp'}"></button>
+                            <a type="button" class="btn btn-danger ms-5" th:href="@{/admin/faculty-and-class}">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--  Footer -->
+            <div th:replace="~{fragments/footer-admin}"></div>
+            <!--  Footer -->
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/scripts}"></div>
+<!-- Icons library -->
+<script th:src="@{/adminpage/plugins/feather.min.js}"></script>
+<!-- Custom scripts -->
+<script th:src="@{/adminpage/js/script.js}"></script>
+<script th:inline="javascript">
+    (() => {
+        'use strict';
+
+        const form = document.querySelector('.needs-validation')
+
+        form.addEventListener('submit', (event) => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false)
+    })()
+
+    $(document).ready(function () {
+        let facultyCode = [[${facultyCode}]]
+        $("input[name='facultyCode']").val(facultyCode)
+        $("#select_kh").val($("input[name='facultyCode']").val())
+    });
+
+    $("#class_form").submit(function (e) {
+        $("input[name='facultyCode']").val($("#select_kh").val());
+        return true
+    })
+</script>
+</body>
+
+</html>

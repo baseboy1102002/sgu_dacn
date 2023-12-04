@@ -8,8 +8,9 @@ import lombok.*;
 @Setter
 @ToString
 public class RoomDto {
+
     private int id;
     private String code;
     private String departmentCode;
-    private String departmentName;
+//    private String departmentName;
 }

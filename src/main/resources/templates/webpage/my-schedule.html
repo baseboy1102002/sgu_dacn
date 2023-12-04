@@ -23,14 +23,7 @@
     <div class="container pt-4">
 
       <!--   Alert   -->
-      <div th:if="${message != null}">
-        <div class="row">
-          <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-            <span th:text="${message}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        </div>
-      </div>
+      <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
       <!--   Alert   -->
 
       <div class="row">
@@ -86,19 +79,19 @@
                         <div class="d-flex justify-content-between align-items-center">
                           <a th:href="@{/event/my-event/{id}(id=${event.id})}" class="btn btn-outline-primary"><i class="fa-regular fa-circle-question"></i> Chi tiết</a>
                           <div sec:authorize="hasAuthority('STUDENT')">
-                            <form class="dismiss_form" th:data-event-id="${event.id}" th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
+                            <form th:if="${event.attendstatus}" th:action="@{/event/dismiss/{eventId}(eventId=${event.id})}" method="post">
                               <button type="button" class="btn btn-danger dismiss_btn" th:disabled="${event.isOutDated}"><i class="fa-solid fa-up-right-from-square"></i> Rời khỏi</button>
                             </form>
                           </div>
                           <th:block sec:authorize="hasAuthority('TEACHER')">
                             <a class="btn btn-warning" th:if="${event.createStatus}" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-                            <form class="delete_form" th:if="${event.createStatus}" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+                            <form th:if="${event.createStatus}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
                               <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
                             </form>
                           </th:block>
                           <th:block sec:authorize="hasAuthority('ADMIN')">
                             <a class="btn btn-warning" th:classappend="${event.isOutDated}?'disabled':'' " th:href="@{/event/edit/{id}(id=${event.id})}"><i class="fa-regular fa-pen-to-square"></i> Sửa</a>
-                            <form class="delete_form" th:data-event-id="${event.id}" th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+                            <form th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
                               <button type="button" class="btn btn-danger delete_btn"><i class="fa-regular fa-trash-can"></i> Xóa</button>
                             </form>
                           </th:block>
@@ -111,10 +104,6 @@
                   <h5 class="text-center fw-normal">Bạn chưa tham gia sự kiện nào.</h5>
                 </th:block>
               </div>
-
-              <!--  MODAL  -->
-              <div th:replace="~{fragments/modal}"></div>
-              <!--  MODAL  -->
 
               <nav class="mt-4">
                 <ul class="pagination justify-content-end" id="pagination"></ul>
@@ -147,14 +136,12 @@
         return {"id": obj.id, "title":obj.departmentCode+'.'+obj.roomCode, "start": startTime, "end": endTime, "url": url};
       });
 
-      function getParentElement(element, parent) {
-        while (element.parentElement) {
-            if (element.parentElement.matches(parent)) {
-                return element.parentElement;
-            }
-            element = element.parentElement;
-        }
-      }
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-start',
+        showConfirmButton: false,
+        timer: 4000,
+      })
 
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -191,18 +178,54 @@
 
         $('input[id=[[${timeType}]]]').prop('checked', true)
 
-        $(".dismiss_btn").each(function (index, element) {
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+          Toast.fire({
+            icon: alertData,
+            title: $('.sw-alert').data('message')
+          })
+        }
+
+        $(".attend_btn").each(function (index, element) {
           $(element).on('click', function(e) {
-              let eventId = $(getParentElement(element, '.dismiss_form')).data('event-id')
-              $('#dismiss_modal').data('event-id', eventId)
-              $('#dismiss_modal').modal('show')
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+              title: "Bạn muốn đăng ký tham gia sự kiện này ?",
+              icon: "question"
+            }).then(function(result) {
+              if (result.isConfirmed) {
+                $(form).submit();
+              }
+            });
           })
         })
 
-        $('#dismiss_confirm').click(function (e) {
-            e.preventDefault();
-            let eventId = $('#dismiss_modal').data('event-id')
-            $(".dismiss_form[data-event-id='"+eventId+"']").submit()
+        $(".dismiss_btn").each(function (index, element) {
+          $(element).on('click', function(e) {
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+              title: "Bạn muốn rút khỏi sự kiện này ?",
+              icon: "question"
+            }).then(function(result) {
+              if (result.isConfirmed) {
+                $(form).submit();
+              }
+            });
+          })
+        })
+
+        $(".delete_btn").each(function (index, element) {
+          $(element).on('click', function(e) {
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+              title: "Bạn có chắc muốn xóa bỏ sự kiện này ?",
+              icon: "warning"
+            }).then(function(result) {
+              if (result.isConfirmed) {
+                $(form).submit();
+              }
+            });
+          })
         })
 
       });

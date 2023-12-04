@@ -10,7 +10,29 @@
     <title>Điểm danh</title>
     <style>
         body {
-          background-color: #F1F6FF;
+            background-color: #F1F6FF;
+        }
+        .table-wrapper {
+            max-height: 350px;
+            overflow: auto;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        /* Track */
+            ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        /* Handle */
+            ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        /* Handle on hover */
+            ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
@@ -19,10 +41,6 @@
 <div th:replace="~{fragments/header}"></div>
 <!--  Header -->
 <div class="container pt-4 pb-4">
-
-    <!--   Toast   -->
-    <div th:replace="~{fragments/toast}"></div>
-    <!--   Toast   -->
 
     <form id="reset_form" method="post" th:action="@{/event/reset-attend}">
         <input type="hidden" name="eventId" th:value="${eventId}">
@@ -53,25 +71,27 @@
             </form>
             <h4 class="text-center mb-3">Danh sách sinh viên đã điểm danh</h4>
             <th:block th:if="${students != null}">
-                <table class="table table-striped">
-                    <thead class="align-middle">
-                        <tr>
-                            <th scope="col" class="col-2">STT</th>
-                            <th scope="col" class="col-6">Tên sinh viên</th>
-                            <th scope="col" class="col-4">Mã số sinh viên</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <th:block th:each="student : ${students}">
-                        <th:block th:with="stt=${studentStat.index+1}"></th:block>
-                        <tr>
-                            <td th:text="${stt}"></td>
-                            <td th:text="${student.studentInfoUserFullName}"></td>
-                            <td th:text="${student.studentInfoStudentCode}"></td>
-                        </tr>
-                    </th:block>
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table class="table table-striped">
+                        <thead class="align-middle">
+                            <tr>
+                                <th scope="col" class="col-2">STT</th>
+                                <th scope="col" class="col-6">Tên sinh viên</th>
+                                <th scope="col" class="col-4">Mã số sinh viên</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:each="student : ${students}">
+                            <th:block th:with="stt=${studentStat.index+1}"></th:block>
+                            <tr>
+                                <td th:text="${stt}"></td>
+                                <td th:text="${student.studentInfoUserFullName}"></td>
+                                <td th:text="${student.studentInfoStudentCode}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
             </th:block>
             <th:block th:unless="${students != null}">
                 <h5 class="text-center fw-normal">Danh sách trống.</h5>
@@ -82,6 +102,13 @@
 </div>
 <div th:replace="~{fragments/scripts}"></div>
 <script th:inline="javascript">
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-start',
+        showConfirmButton: false,
+        timer: 4000,
+    })
+
     $(document).ready(function () {
         let scanner = new Instascan.Scanner({ video:document.getElementById('scanner') })
         scanner.addListener('scan', function(value) {
@@ -92,10 +119,10 @@
             if (cameras.length>0) {
                 scanner.start(cameras[0])
             } else {
-                showToast('err')
+                showToast('err', 'error')
             }
         }).catch((err) => {
-            showToast('err')
+            showToast('err', 'error')
         })
 
         $('#btn_reset_attend').click(function(e) {
@@ -103,10 +130,11 @@
         })
     })
 
-    function showToast(message) {
-        $("#toast .toast-body").text(message);
-        const toast = new bootstrap.Toast($("#toast"))
-        toast.show()
+    function showToast(message, type) {
+        Toast.fire({
+            icon: type,
+            title: message
+        })
     }
 </script>
 </body>

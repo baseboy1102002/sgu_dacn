@@ -5,11 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
     <link rel="stylesheet" th:href="@{/webpage/customstyled.css}">
     <title>Đăng ký</title>
     <style>
         body {
           background-color: #F1F6FF;
+        }
+        .input_box {
+            position: relative;
+        }
+        .input_box i {
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
         }
     </style>
 </head>
@@ -27,7 +38,7 @@
 
         <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
             <div class="mb-3">
-                <img src="../resources/imglogin.png" class="img-fluid" style="width: 250px;">
+                <img th:src="@{/webpage/imglogin.png}" class="img-fluid" style="width: 250px;">
             </div>
             <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">
                 SGU Event Schedule
@@ -42,34 +53,30 @@
         <div class="col-md-6 right-box">
             <div class="row align-items-center">
                 <div class="header-text mb-2">
+
                     <!--   Alert   -->
-                    <div th:if="${message != null}">
-                        <div class="row">
-                            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                                <span th:text="${message}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
                     <!--   Alert   -->
+
                     <h2>Tạo tài khoản</h2>
                     <p>Chào mừng bạn đến với ngôi nhà SGU</p>
                 </div>
                 <form id="signupForm" th:action="@{/user/sign-up}" method="post" th:object="${userDto}" class="needs-validation" novalidate>
                     <input type="hidden" th:field="*{roleCode}">
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <input th:field="*{fullName}" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Họ và tên" required>
                         <div class="invalid-feedback">Vui lòng điền họ tên</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <input th:field="*{username}" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Tên đăng nhập" required>
                         <div class="invalid-feedback">Vui lòng điền tên tài khoản</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3 input_box">
                         <input th:field="*{password}" type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required>
-                        <div class="invalid-feedback">Vui lòng điền tên mật khẩu</div>
+                        <i class="fa-regular fa-eye" onclick="togglePassword(this)"></i>
+                        <div class="invalid-feedback">Vui lòng điền mật khẩu</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <select id="select_role" class="form-control form-control-lg bg-light fs-6" required>
                             <option value selected disabled hidden>Bạn là</option>
                             <th:block th:each="role: ${roles}">
@@ -78,15 +85,15 @@
                         </select>
                         <div class="invalid-feedback">Vui lòng chọn vai trò</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <input th:field="*{userCode}" type="text" id="input_userCode" class="form-control form-control-lg bg-light fs-6" placeholder="Mã số sinh viên" required>
                         <div class="invalid-feedback">Vui lòng không bỏ trống</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <input th:field="*{email}" type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" required>
                         <div class="invalid-feedback">Vui lòng điền email</div>
                     </div>
-                    <div class="input-group mb-3">
+                    <div class="mb-3">
                         <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng ký</button>
                     </div>
                 </form>
@@ -114,7 +121,34 @@
         }, false)
     })()
 
+    function togglePassword(e) {
+        console.log(e.closest('.input_box').querySelector('input'))
+        const ip = e.closest('.input_box').querySelector('input')
+        if (ip.type === "password") {
+            ip.type = "text";
+            $(e).removeClass('fa-eye').addClass('fa-eye-slash')
+        } else {
+            ip.type = "password";
+            $(e).removeClass('fa-eye-slash').addClass('fa-eye')
+        }
+    }
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-start',
+        showConfirmButton: false,
+        timer: 4000,
+    })
+
     $(document).ready(function () {
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+            Toast.fire({
+                icon: alertData,
+                title: $('.sw-alert').data('message')
+            })
+        }
+
         $("#select_role").val($("input[name='roleCode']").val())
         $('#select_role').on('change', function() {
             if (this.value==="STUDENT")

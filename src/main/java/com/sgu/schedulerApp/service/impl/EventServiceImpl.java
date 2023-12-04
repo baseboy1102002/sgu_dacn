@@ -1,9 +1,7 @@
 package com.sgu.schedulerApp.service.impl;
 
 import com.sgu.schedulerApp.config.security.MyUserDetails;
-import com.sgu.schedulerApp.dto.EventDto;
-import com.sgu.schedulerApp.dto.FilterDto;
-import com.sgu.schedulerApp.dto.StudentInfoDto;
+import com.sgu.schedulerApp.dto.*;
 import com.sgu.schedulerApp.entity.*;
 import com.sgu.schedulerApp.exception.CustomErrorException;
 import com.sgu.schedulerApp.repository.*;
@@ -41,25 +39,25 @@ public class EventServiceImpl implements EventService {
     private final ModelMapper modelMapper;
     private final EmailService emailService;
 
-    @Override
-    public Page<EventDto> findAll(int pagenum) {
-        Pageable pageable = PageRequest.of(pagenum-1,8);
-        Page<Event> events = eventRepository.findAll(pageable);
-        return events.map(event -> modelMapper.map(event, EventDto.class));
-
-    }
-
-    @Override
-    public Page<EventDto> search(FilterDto filterDto, String keyword, int pagenum) {
-        filterDto.setDepartmentCode(filterDto.getDepartmentCode().isBlank() ? null:filterDto.getDepartmentCode());
-        filterDto.setRoomCode(filterDto.getRoomCode().isBlank() ? null:filterDto.getRoomCode());
-        filterDto.setFacultyCode(filterDto.getFacultyCode().isBlank() ? null:filterDto.getFacultyCode());
-        filterDto.setClassCode(filterDto.getClassCode().isBlank() ? null:filterDto.getClassCode());
-
-        Pageable pageable = PageRequest.of(pagenum-1,8);
-        Page<Event> events = eventRepository.search(filterDto, keyword, pageable);
-        return events.map(event -> modelMapper.map(event, EventDto.class));
-    }
+//    @Override
+//    public Page<EventDto> findAll(int pagenum) {
+//        Pageable pageable = PageRequest.of(pagenum-1,8);
+//        Page<Event> events = eventRepository.findAll(pageable);
+//        return events.map(event -> modelMapper.map(event, EventDto.class));
+//
+//    }
+//
+//    @Override
+//    public Page<EventDto> search(FilterDto filterDto, String keyword, int pagenum) {
+//        filterDto.setDepartmentCode(filterDto.getDepartmentCode().isBlank() ? null:filterDto.getDepartmentCode());
+//        filterDto.setRoomCode(filterDto.getRoomCode().isBlank() ? null:filterDto.getRoomCode());
+//        filterDto.setFacultyCode(filterDto.getFacultyCode().isBlank() ? null:filterDto.getFacultyCode());
+//        filterDto.setClassCode(filterDto.getClassCode().isBlank() ? null:filterDto.getClassCode());
+//
+//        Pageable pageable = PageRequest.of(pagenum-1,8);
+//        Page<Event> events = eventRepository.search(filterDto, keyword, pageable);
+//        return events.map(event -> modelMapper.map(event, EventDto.class));
+//    }
 
     @Override
     public EventDto findById(int id) {
@@ -72,7 +70,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Boolean attendEvent(int eventId) {
+    public void attendEvent(int eventId) {
         Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
         StudentInfo student = studentRepository.findById(studentId).get();
@@ -81,7 +79,7 @@ public class EventServiceImpl implements EventService {
             Event event = eventOptional.get();
             long currentAttendCount = eventStudentRepository.countByEventStudentId_EventId(eventId);
             if (currentAttendCount >= event.getNumOfSeat()) {
-                return false;
+                throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không thể tham gia, sự kiện đang tạm thời đầy chỗ.");
             }
             if (!checkValidAttend(event.getDate(), event.getEndTime(), event.getStartTime(), studentId)) {
                 EventStudent eventStudent = new EventStudent();
@@ -90,9 +88,8 @@ public class EventServiceImpl implements EventService {
                 eventStudent.setCheckAttended(false);
                 eventStudent.setEventStudentId(new EventStudentId(eventId, studentId));
                 eventStudentRepository.save(eventStudent);
-                return true;
-            } else return false;
-        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+eventId, eventId);
+            } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không thể tham gia do sự kiện này trùng với lịch trình của bạn.");
+        } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+eventId);
     }
 
     @Override
@@ -101,11 +98,11 @@ public class EventServiceImpl implements EventService {
         int studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
         EventStudent eventStudent = eventStudentRepository.findByEventStudentId_EventIdAndEventStudentId_StudentId(eventId, studentId);
         if (eventStudent != null) {
+            eventStudent.getEvent().getStudents().remove(eventStudent);
             eventStudentRepository.delete(eventStudent);
         } else
             throw new CustomErrorException(HttpStatus.NOT_FOUND,
-                    "Người dùng với id: "+studentId+" chưa tham gia sự kiện với id:"+eventId+" để có thể hủy tham gia",
-                    eventId);
+                    "Người dùng với id: "+studentId+" chưa tham gia sự kiện với id:"+eventId+" để có thể hủy tham gia");
     }
 
     private Boolean checkValidAttend(LocalDate date, LocalTime endTime, LocalTime startTime, int studentId) {
@@ -126,24 +123,28 @@ public class EventServiceImpl implements EventService {
             studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
         }
         Pageable pageable = PageRequest.of(pagenum-1,8, Sort.by(Sort.Direction.DESC, "ngay"));
-        Page<Event> events = eventRepository.searchTest(filterDto, keyword, studentId, pageable);
+        Page<Event> events = eventRepository.searchTest(filterDto, keyword, studentId, LocalDate.now(), LocalTime.now(), pageable);
         return events.map(event -> modelMapper.map(event, EventDto.class));
     }
 
     @Override
     @Transactional
     public EventDto saveEvent(EventDto eventDto) {
+        boolean isScheduleUpdated = false;
         Optional<Event> optionalEvent = eventRepository.findById(eventDto.getId());
         Event event;
         if (optionalEvent.isPresent()) {
             event = optionalEvent.get();
-            if (!event.getDate().equals(eventDto.getDate()) || !event.getStartTime().equals(eventDto.getStartTime()) || !event.getEndTime().equals(eventDto.getEndTime())) {
-                if (checkValidCreateEvent(eventDto.getDate(), eventDto.getRoomCode(), eventDto.getEndTime(), eventDto.getStartTime(), eventDto.getId()))
-                    return null;
+            if (checkEventTimesHasChange(event, eventDto)) {
+                if (checkValidSaveEvent(eventDto)) {
+                    throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
+                } else {
+                    isScheduleUpdated = true;
+                }
             }
         } else {
-            if (checkValidCreateEvent(eventDto.getDate(), eventDto.getRoomCode(), eventDto.getEndTime(), eventDto.getStartTime(), eventDto.getId()))
-                return null;
+            if (checkValidSaveEvent(eventDto))
+                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
             event = new Event();
             Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             int createdUserId = ((MyUserDetails) principal).getUser().getId();
@@ -156,32 +157,49 @@ public class EventServiceImpl implements EventService {
         event.setEndTime(eventDto.getEndTime());
         event.setDescription(eventDto.getDescription());
         event.setNumOfSeat(eventDto.getNumOfSeat() != null ? eventDto.getNumOfSeat():250);
-        Room room = roomRepository.findByCodeAndDepartment_Code(eventDto.getRoomCode(), eventDto.getDepartmentCode().isBlank()? null:eventDto.getDepartmentCode());
+        Room room = roomRepository.findByCodeAndDepartment_CodeAndStatusTrue(eventDto.getRoomCode(), eventDto.getDepartmentCode());
         if (room != null) {
             event.setRoom(room);
         }
         Faculty faculty = null;
         if (!eventDto.getFacultyCode().isBlank()) {
-            faculty = facultyRepository.findByCode(eventDto.getFacultyCode());
+            faculty = facultyRepository.findByCodeAndStatusTrue(eventDto.getFacultyCode());
         }
         event.setFaculty(faculty);
         Classroom classroom = null;
         if (!eventDto.getClassroomCode().isBlank()) {
-            classroom = classroomRepository.findByCode(eventDto.getClassroomCode());
+            classroom = classroomRepository.findByCodeAndStatusTrue(eventDto.getClassroomCode());
         }
         event.setClassroom(classroom);
         Event savedEvent = eventRepository.save(event);
-        return modelMapper.map(savedEvent, EventDto.class);
+        EventDto ev = modelMapper.map(savedEvent, EventDto.class);
+        ev.setIsUpdateSchedule(isScheduleUpdated);
+        return ev;
     }
 
-    private boolean checkValidCreateEvent(LocalDate date, String roomCode, LocalTime endTime, LocalTime startTime, int eventId) {
-        return eventRepository.existsByDateAndRoom_CodeAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(date,
-                roomCode, endTime, startTime, eventId);
+    private boolean checkValidSaveEvent(EventDto eventDto) {
+        return eventRepository.existsByDateAndRoom_CodeAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(eventDto.getDate(),
+                eventDto.getRoomCode(), eventDto.getEndTime(), eventDto.getStartTime(), eventDto.getId());
+    }
+
+    private boolean checkEventTimesHasChange(Event oldEvent, EventDto newEvent) {
+        return !oldEvent.getDate().equals(newEvent.getDate()) || !oldEvent.getStartTime().equals(newEvent.getStartTime()) || !oldEvent.getEndTime().equals(newEvent.getEndTime());
+    }
+
+    @Override
+    @Async
+    public void sendUpdateScheduleEventEmail(int eventId, EventDto oldEvent,EventDto newEvent) {
+        List<EventStudent> eventStudents = eventStudentRepository.getAllStudentAttendEvent(eventId);
+        if (!eventStudents.isEmpty()) {
+            List<String> toEmails = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getEmail()).toList();
+            List<String> studentNames = eventStudents.stream().map(ev -> ev.getStudentInfo().getUser().getFullName()).toList();
+            emailService.sendEmailsWhenUpdateEventSchedule(toEmails, studentNames, oldEvent, newEvent);
+        } else return;
     }
 
     @Override
     public Page<EventDto> getUserEventsPageable(int pagenum, String timeType) {
-        Pageable pageable = PageRequest.of(pagenum-1,8, Sort.by(Sort.Direction.DESC, "date"));
+        Pageable pageable = PageRequest.of(pagenum-1,6, Sort.by(Sort.Direction.DESC, "date"));
         Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Set<String> currentUserRole = ((MyUserDetails) principal).getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
@@ -190,19 +208,19 @@ public class EventServiceImpl implements EventService {
             int studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
             if (timeType.equals("past")) {
                 LocalDate currentDate = LocalDate.now();
-                events = eventRepository.getStudentEventsInPast(studentId, currentDate, pageable);
+                events = eventRepository.getStudentEventsInPast(studentId, currentDate, LocalTime.now(), pageable);
             } else {
                 LocalDate currentDate = timeType.equals("all") ? null : LocalDate.now();
-                events = eventRepository.getStudentEvents(studentId, currentDate, pageable);
+                events = eventRepository.getStudentEvents(studentId, currentDate, LocalTime.now(), pageable);
             }
         } else {
             int userId = ((MyUserDetails) principal).getUser().getId();
             if (timeType.equals("past")) {
                 LocalDate currentDate = LocalDate.now();
-                events = eventRepository.getUserEventsInPast(userId, currentDate, pageable);
+                events = eventRepository.getUserEventsInPast(userId, currentDate, LocalTime.now(), pageable);
             } else {
                 LocalDate currentDate = timeType.equals("all") ? null : LocalDate.now();
-                events = eventRepository.getUserEvents(userId, currentDate, pageable);
+                events = eventRepository.getUserEvents(userId, currentDate, LocalTime.now(), pageable);
             }
         }
         return events.map(e -> modelMapper.map(e, EventDto.class));
@@ -218,19 +236,19 @@ public class EventServiceImpl implements EventService {
             int studentId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
             if (timeType.equals("past")) {
                 LocalDate currentDate = LocalDate.now();
-                events = eventRepository.getStudentEventsInPast(studentId, currentDate);
+                events = eventRepository.getStudentEventsInPast(studentId, currentDate, LocalTime.now());
             } else {
                 LocalDate currentDate = timeType.equals("all") ? null : LocalDate.now();
-                events = eventRepository.getStudentEvents(studentId, currentDate);
+                events = eventRepository.getStudentEvents(studentId, currentDate, LocalTime.now());
             }
         } else {
             int userId = ((MyUserDetails) principal).getUser().getId();
             if (timeType.equals("past")) {
                 LocalDate currentDate = LocalDate.now();
-                events = eventRepository.getUserEventsInPast(userId, currentDate);
+                events = eventRepository.getUserEventsInPast(userId, currentDate, LocalTime.now());
             } else {
                 LocalDate currentDate = timeType.equals("all") ? null : LocalDate.now();
-                events = eventRepository.getUserEvents(userId, currentDate);
+                events = eventRepository.getUserEvents(userId, currentDate, LocalTime.now());
             }
         }
         return  events.stream().map(e -> modelMapper.map(e, EventDto.class)).collect(Collectors.toList());
@@ -300,5 +318,25 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void resetAttendEvent(int eventId) {
         eventStudentRepository.resetCheckAttendEvent(eventId);
+    }
+
+    @Override
+    public List<StatisticDto> getStatisticForAdminDashboard(String yearNo, String facultyCode) {
+        return eventStudentRepository.getStatisticForAdminDashboard(yearNo, facultyCode, LocalDate.now(), LocalTime.now());
+    }
+
+    @Override
+    public long countTotalEventHeld(String yearNo, String facultyCode) {
+        return eventRepository.countTotalEventHeld(yearNo, facultyCode, LocalDate.now(), LocalTime.now());
+    }
+
+    @Override
+    public long countTotalEnroll(String yearNo, String facultyCode) {
+        return eventRepository.countTotalEnroll(yearNo, facultyCode, LocalDate.now(), LocalTime.now());
+    }
+
+    @Override
+    public List<FacultyDto> getStatisticFacultyData(String yearNo) {
+        return facultyRepository.getStatisticFacultyData(yearNo, LocalDate.now(), LocalTime.now());
     }
 }

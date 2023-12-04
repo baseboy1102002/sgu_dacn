@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!--Head-->
+<div th:replace="~{fragments/head-admin}"></div>
+<!--Head-->
+
+<body>
+    <div class="layer"></div>
+    <!-- ! Body -->
+    <a class="skip-link sr-only" href="#skip-target">Skip to content</a>
+    <div class="page-flex">
+
+        <!-- ! Sidebar -->
+        <div th:replace="~{fragments/sidebar-admin}"></div>
+        <!-- ! Sidebar -->
+
+        <div class="main-wrapper">
+
+            <!-- ! Main nav -->
+            <div th:replace="~{fragments/header-admin}"></div>
+            <!-- ! Main nav -->
+
+            <!-- ! Main -->
+            <div class="main">
+                <div class="container">
+
+                    <!--   Alert   -->
+                    <div th:if="${message != null}">
+                        <div class="row px-lg-5 mx-lg-5">
+                            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                                <span th:text="${message}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--   Alert   -->
+
+                    <h4 class="main-title text-center text-uppercase" th:text="${isUpdate? 'Chỉnh sửa cơ sở':'Tạo cơ sở'}"></h4>
+                    <div class="px-sm-0 px-lg-5 mx-lg-5">
+                        <form th:action="@{/admin/departments-and-rooms/edit-department}" th:object="${departmentDto}" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" th:field="*{id}">
+                            <div class="mb-3 col-12">
+                                <label for="name" class="form-label">Tên cơ sở <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                <div class="invalid-feedback">Vui lòng điền tên cơ sở</div>
+                            </div>
+                            <div class="mb-5 col-12">
+                                <label for="code" class="form-label">Mã cơ sở <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="code" th:field="*{code}" required>
+                                <div class="invalid-feedback">Vui lòng điền mã cơ sở</div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" th:text="${isUpdate? 'Cập nhật':'Tạo cơ sở'}"></button>
+                                <a type="button" class="btn btn-danger ms-5" th:href="@{/admin/departments-and-rooms}">Hủy</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!--  Footer -->
+                <div th:replace="~{fragments/footer-admin}"></div>
+                <!--  Footer -->
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/scripts}"></div>
+    <!-- Icons library -->
+    <script th:src="@{/adminpage/plugins/feather.min.js}"></script>
+    <!-- Custom scripts -->
+    <script th:src="@{/adminpage/js/script.js}"></script>
+    <script th:inline="javascript">
+        (() => {
+            'use strict';
+
+            const form = document.querySelector('.needs-validation')
+
+            form.addEventListener('submit', (event) => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false)
+        })()
+
+    </script>
+</body>
+</html>

@@ -9,7 +9,12 @@
     <title>Danh sách tham dự</title>
     <style>
         body {
-          background-color: #F1F6FF;
+            background-color: #F1F6FF;
+        }
+        .table-wrapper {
+            max-height: 600px;
+            overflow: auto;
+            display:inline-block;
         }
     </style>
 </head>
@@ -27,28 +32,33 @@
     </div>
     <div class="col-12 col-md-8 col-lg-6 mx-auto">
         <th:block th:if="${students != null}">
-            <table class="table table-striped">
-                <thead class="align-middle">
-                <tr>
-                    <th scope="col" class="col-1">STT</th>
-                    <th scope="col" class="col-5">Tên sinh viên</th>
-                    <th scope="col" class="col-4">Mã số sinh viên</th>
-                    <th scope="col" class="col-2">Điểm danh</th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="student : ${students}">
-                    <th:block th:with="stt=${studentStat.index+1}"></th:block>
-                    <tr>
-                        <td th:text="${stt}"></td>
-                        <td th:text="${student.studentInfoUserFullName}"></td>
-                        <td th:text="${student.studentInfoStudentCode}"></td>
-                        <td th:if="${student.checkAttended}" class="text-center"><i class="fa-regular fa-circle-check"></i></td>
-                        <td th:unless="${student.checkAttended}"></td>
-                    </tr>
-                </th:block>
-                </tbody>
-            </table>
+            <div class="text-center">
+                <span th:text="|Hiển thị danh sách ${totalStudent} sinh viên|"></span>
+            </div>
+            <div class="table_wrapper">
+                <table class="table">
+                    <thead class="align-middle">
+                        <tr>
+                            <th scope="col" class="col-1">STT</th>
+                            <th scope="col" class="col-5">Tên sinh viên</th>
+                            <th scope="col" class="col-4">Mã số sinh viên</th>
+                            <th scope="col" class="col-2">Điểm danh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="student : ${students}">
+                        <th:block th:with="stt=${studentStat.index+1}"></th:block>
+                        <tr>
+                            <td th:text="${stt}"></td>
+                            <td th:text="${student.studentInfoUserFullName}"></td>
+                            <td th:text="${student.studentInfoStudentCode}"></td>
+                            <td th:if="${student.checkAttended}" class="text-center"><i class="fa-regular fa-circle-check"></i></td>
+                            <td th:unless="${student.checkAttended}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
         </th:block>
         <th:block th:unless="${students != null}">
             <h5 class="text-center fw-normal">Chưa có ai đăng ký tham gia sự kiện này.</h5>

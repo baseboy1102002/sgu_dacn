@@ -2,13 +2,25 @@ function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
 }
 
-function getParentElement(element, parent) {
-    while (element.parentElement) {
-        if (element.parentElement.matches(parent)) {
-            return element.parentElement;
-        }
-        element = element.parentElement;
+function matchCustom(params, data) {
+    // If there are no search terms, return all of the data
+    if ($.trim(params.term) === '') {
+      return data;
     }
+    // Do not display the item if there is no 'text' property
+    if (typeof data.text === 'undefined') {
+      return null;
+    }
+    // search by value
+    if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+      return data;
+    }
+    // search by id
+    if (data.id.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+      return data;
+    }
+    // Return `null` if the term should not be displayed
+    return null;
 }
 
 $(document).ready(function () {
@@ -33,13 +45,16 @@ $(document).ready(function () {
         return obj;
     });
     $("#faculty_select").select2({
-        data: faculty_data
+        data: faculty_data,
+        matcher: matchCustom
     })
     $("#class_select").select2({
-        data: class_data
+        data: class_data,
+        matcher: matchCustom
     })
     $("#department_select").select2({
-        data: department_data
+        data: department_data,
+        matcher: matchCustom
     })
     $("#room_select").select2({
         data: room_data
@@ -90,7 +105,8 @@ $(document).ready(function () {
         }
         $("#class_select").empty()
         $("#class_select").select2({
-            data: class_data
+            data: class_data,
+            matcher: matchCustom
         })
     })
 
@@ -107,6 +123,8 @@ $(document).ready(function () {
     $("#date_end").val($("input[name='filterDto.endTime']").val());
     let check = $("input[name='filterDto.isOnlyAttainable']").val() === "true"
     $("#isOnlyAttainable_checkbox").prop('checked', check)
+    let check2 = $("input[name='filterDto.isOnlyNonExpired']").val() === "true"
+    $("#isOnlyNonExpired_checkbox").prop('checked', check2)
 
     window.pagObj = $('#pagination').twbsPagination({
         totalPages: (totalPage==0)?1:totalPage,
@@ -126,47 +144,54 @@ $(document).ready(function () {
         $('#searchform').submit();
     })
 
+    const alertData = $('.sw-alert').data('alert')
+    if(alertData) {
+        Toast.fire({
+            icon: alertData,
+            title: $('.sw-alert').data('message')
+        })
+    }
+
     $(".attend_btn").each(function (index, element) {
         $(element).on('click', function(e) {
-            let eventId = $(getParentElement(element, '.attend_form')).data('event-id')
-            $('#attend_modal').data('event-id', eventId)
-            $('#attend_modal').modal('show')
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+                title: "Bạn muốn đăng ký tham gia sự kiện này ?",
+                icon: "question"
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $(form).submit();
+                }
+            });
         })
-    })
-
-    $('#attend_confirm').click(function (e) {
-        e.preventDefault();
-        let eventId = $('#attend_modal').data('event-id')
-        $(".attend_form[data-event-id='"+eventId+"']").submit()
     })
 
     $(".dismiss_btn").each(function (index, element) {
         $(element).on('click', function(e) {
-            let eventId = $(getParentElement(element, '.dismiss_form')).data('event-id')
-            $('#dismiss_modal').data('event-id', eventId)
-
-            $('#dismiss_modal').modal('show')
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+                title: "Bạn muốn rút khỏi sự kiện này ?",
+                icon: "question"
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $(form).submit();
+                }
+            });
         })
-    })
-
-    $('#dismiss_confirm').click(function (e) {
-        e.preventDefault();
-        let eventId = $('#dismiss_modal').data('event-id')
-        $(".dismiss_form[data-event-id='"+eventId+"']").submit()
     })
 
     $(".delete_btn").each(function (index, element) {
         $(element).on('click', function(e) {
-            let eventId = $(getParentElement(element, '.delete_form')).data('event-id')
-            $('#delete_modal').data('event-id', eventId)
-            $('#delete_modal').modal('show')
+            const form = $(this).closest('form')
+            confirmDialog.fire({
+                title: "Bạn có chắc muốn xóa bỏ sự kiện này ?",
+                icon: "warning"
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $(form).submit();
+                }
+            });
         })
-    })
-
-    $('#delete_confirm').click(function (e) {
-        e.preventDefault();
-        let eventId = $('#delete_modal').data('event-id')
-        $(".delete_form[data-event-id='"+eventId+"']").submit()
     })
 
 })
@@ -186,6 +211,7 @@ $("#searchform").submit(function (e) {
     $("input[name='filterDto.facultyCode']").val($("#faculty_select").val());
     $("input[name='filterDto.classCode']").val($("#class_select").val());
     $("input[name='filterDto.isOnlyAttainable']").val($("#isOnlyAttainable_checkbox").is(':checked'));
+    $("input[name='filterDto.isOnlyNonExpired']").val($("#isOnlyNonExpired_checkbox").is(':checked'));
     $("input[name='filterDto.startTime']").val(startTime);
     $("input[name='filterDto.endTime']").val(endTime);
     return true

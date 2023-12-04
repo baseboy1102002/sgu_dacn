@@ -37,3 +37,7 @@ hr {
   line-height: 2rem;
   border-color: rgb(145, 145, 145);
 }
+
+.fixed-w-200 {
+    width: 200px;
+}

@@ -10,354 +10,181 @@
 <!-- ! Body -->
 <a class="skip-link sr-only" href="#skip-target">Skip to content</a>
 <div class="page-flex">
+
     <!-- ! Sidebar -->
     <div th:replace="~{fragments/sidebar-admin}"></div>
+    <!-- ! Sidebar -->
+
     <div class="main-wrapper">
+
         <!-- ! Main nav -->
         <div th:replace="~{fragments/header-admin}"></div>
+        <!-- ! Main nav -->
+
         <!-- ! Main -->
         <div class="main">
             <div class="container">
+
+                <!--   Alert   -->
+                <div th:if="${message != null}">
+                    <div class="row px-sm-0 px-lg-5">
+                        <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
+                            <span th:text="${message}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+                <!--   Alert   -->
+
                 <h2 class="main-title text-center text-uppercase">Quản lý phòng học</h2>
                 <div class="row d-flex justify-content-between px-sm-0 px-lg-5">
                     <div class="col-4">
-                        <button type="button" class="btn btn-primary">Tạo cơ sở</button>
+                        <a type="button" class="btn btn-primary" th:href="@{/admin/departments-and-rooms/edit-department}">
+                            <i class="fa-solid fa-plus"></i> Tạo cơ sở
+                        </a>
                     </div>
-                    <div class="input-group col-8">
-                        <select class="form-select">
-                            <option selected disabled>Chọn cơ sở</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </select>
-                        <input type="text" class="form-control"
-                               placeholder="Tìm" />
-                        <button type="button" class="btn btn-primary"><i
-                                class="fas fa-search"></i></button>
-                    </div>
+                    <form method="get" th:action="@{/admin/departments-and-rooms}" class="col-8">
+                        <div class="input-group">
+                            <select class="form-select" name="departmentCode">
+                                <option value="" selected>Tất cả</option>
+                                <th:block th:each="d: ${departmentSelect}">
+                                    <option th:value="${d.code}" th:text="${d.name}"></option>
+                                </th:block>
+                            </select>
+                            <input type="text" name="keyword" value="" class="form-control" placeholder="Tìm" />
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                        </div>
+                    </form>
                 </div>
                 <div class="list-group px-sm-0 px-lg-5">
-                    <div
-                            class="list-group-item d-flex justify-content-between align-items-center mt-3">
-                        <h5>Cơ sở chính
-                            <span class="badge bg-primary ms-3">CSC</span>
-                        </h5>
-                        <div>
-                            <button
-                                    class="btn btn-sm btn-outline-primary btn_seemore">Ẩn bớt
-                                <i class="fa-solid fa-chevron-up"></i>
-                            </button>
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fa-regular fa-square-plus"></i> Thêm phòng
-                            </button>
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fa-regular fa-trash-can"></i> Xóa
-                            </button>
-                        </div>
-                    </div>
-                    <div class="list-group">
-                        <div class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fa-regular fa-pen-to-square"></i>Sửa
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i> Xóa
+                    <th:block th:each="d: ${departments}">
+                        <div class="list-group-item d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex align-items-center">
+                                <h5 class="d-inline-block fixed-w-200"><div th:text="${d.name}" th:remove="tag"></div><span th:text="${d.code}" class="badge bg-primary ms-3"></span></h5>
+                                <button class="btn btn-sm btn-outline-primary btn_seemore ms-4">
+                                    Ẩn <i class="fa-solid fa-chevron-up"></i>
                                 </button>
                             </div>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
                             <div>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fa-regular fa-pen-to-square"></i>Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
+                                <form class="delete_department_form" th:data-department-id="${d.id}" th:action="@{/admin/departments-and-rooms/delete-department/{id}(id=${d.id})}" method="post">
+                                    <a class="btn btn-sm btn-primary" th:href="@{/admin/departments-and-rooms/edit-room?departmentCode={departmentCode}(departmentCode=${d.code})}">
+                                        <i class="fa-solid fa-plus"></i> Tạo phòng
+                                    </a>
+                                    <a class="btn btn-sm btn-success" th:href="@{/admin/departments-and-rooms/edit-department/{id}(id=${d.id})}">
+                                        <i class="fa-regular fa-pen-to-square"></i> Sửa
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger delete_department_btn">
+                                        <i class="fa-regular fa-trash-can"></i> Xóa
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fa-regular fa-pen-to-square"></i> Sửa
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i> Xóa
-                                </button>
-                            </div>
+                        <div class="list-group">
+                            <th:block th:each="room: ${d.rooms}">
+                                <div class="list-group-item d-flex justify-content-between pe-4">
+                                    <div th:text="${room.code}"></div>
+                                    <div>
+                                        <form class="delete_room_form" th:data-room-id="${room.id}" th:action="@{/admin/departments-and-rooms/delete-room/{id}(id=${room.id})}" method="post">
+                                            <a class="btn btn-sm btn-outline-success" th:href="@{/admin/departments-and-rooms/edit-room/{id}?departmentCode={departmentCode}(id=${room.id}, departmentCode=${d.code})}">
+                                                <i class="fa-regular fa-pen-to-square"></i> Sửa
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete_room_btn">
+                                                <i class="fa-regular fa-trash-can"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </th:block>
                         </div>
-                        <div class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fa-regular fa-pen-to-square"></i> Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div
-                            class="list-group-item d-flex justify-content-between align-items-center mt-3">
-                        <h5>Cơ sở 1
-                            <span class="badge bg-primary ms-3">CS1</span>
-                        </h5>
-                        <div>
-                            <button
-                                    class="btn btn-sm btn-outline-primary btn_seemore">
-                                Ẩn bớt
-                                <i
-                                        class="fa-solid fa-chevron-up"></i>
-                            </button>
-                            <button
-                                    class="btn btn-sm btn-primary">
-                                <i class="fa-regular fa-square-plus"></i>
-                                Thêm
-                            </button>
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fa-regular fa-trash-can"></i> Xóa
-                            </button>
-                        </div>
-                    </div>
-                    <div class="list-group">
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div
-                            class="list-group-item d-flex justify-content-between align-items-center mt-3">
-                        <h5>Cơ sở 2
-                            <span class="badge bg-primary ms-3">CS2</span>
-                        </h5>
-                        <div>
-                            <button
-                                    class="btn btn-sm btn-outline-primary btn_seemore">
-                                Ẩn bớt
-                                <i
-                                        class="fa-solid fa-chevron-up"></i>
-                            </button>
-                            <button
-                                    class="btn btn-sm btn-primary">
-                                <i class="fa-regular fa-square-plus"></i>
-                                Thêm
-                            </button>
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fa-regular fa-trash-can"></i> Xóa
-                            </button>
-                        </div>
-                    </div>
-                    <div class="list-group">
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                        <div
-                                class="list-group-item d-flex justify-content-between pe-4">
-                            <div>Phòng 1.1</div>
-                            <div>
-                                <button
-                                        class="btn btn-sm btn-outline-success">
-                                    <i
-                                            class="fa-regular fa-pen-to-square"></i>
-                                    Sửa
-                                </button>
-                                <button
-                                        class="btn btn-sm btn-outline-danger">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
+                        <hr>
+                    </th:block>
                 </div>
             </div>
+
             <!-- ! Footer -->
             <div th:replace="~{fragments/footer-admin}"></div>
+            <!-- ! Footer -->
+
+            <!-- ! Modal -->
+            <div th:replace="~{fragments/modal}"></div>
+            <!-- ! Modal -->
+
         </div>
     </div>
 </div>
-<script th:src="@{/webpage/bootstrap/js/bootstrap.min.js}"></script>
-<script th:src="@{/webpage/jquery/jquery-3.7.1.min.js}"></script>
+<div th:replace="~{fragments/scripts}"></div>
 <!-- Icons library -->
 <script th:src="@{/adminpage/plugins/feather.min.js}"></script>
 <!-- Custom scripts -->
 <script th:src="@{/adminpage/js/script.js}"></script>
-<script th:src="@{/adminpage/myscript.js}"></script>
-</body>
+<script th:inline="javascript">
+    function getParentElement(element, parent) {
+        while (element.parentElement) {
+            if (element.parentElement.matches(parent)) {
+                return element.parentElement;
+            }
+            element = element.parentElement;
+        }
+    }
 
+    $(".btn_seemore").each(function (index, element) {
+        $(element).click(function (e) {
+            e.preventDefault();
+            if($(this).hasClass("hide"))
+                $(this).html("Ẩn <i class='fa-solid fa-chevron-up'></i>").removeClass("hide");
+            else
+                $(this).html("Hiện <i class='fa-solid fa-chevron-down'></i>").addClass("hide");
+
+            const list_items = getParentElement(element, ".list-group-item").nextElementSibling
+
+            if($(list_items).hasClass("group-item_dp-none"))
+                $(list_items).animate({maxHeight:220},200).removeClass("group-item_dp-none");
+            else
+                $(list_items).animate({maxHeight:0},200).addClass("group-item_dp-none");
+        })
+    })
+
+    $(document).ready(function () {
+        let c = $(".btn_seemore").length;
+        let btn_seemore = $(".btn_seemore")
+        for (let index = c-1; index > 1; index--) {
+            console.log(btn_seemore[index])
+            btn_seemore[index].click()
+        }
+
+        $(".delete_room_btn").each(function (index, element) {
+            $(element).on('click', function(e) {
+                let roomId = $(getParentElement(element, '.delete_room_form')).data('room-id')
+                $('#delete_modal').data('room-id', roomId)
+                $('#delete_modal').data('delete-target', 'room')
+                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa phòng này ?')
+                $('#delete_modal').modal('show')
+            })
+        })
+
+        $(".delete_department_btn").each(function (index, element) {
+            $(element).on('click', function(e) {
+                let departmentId = $(getParentElement(element, '.delete_department_form')).data('department-id')
+                $('#delete_modal').data('department-id', departmentId)
+                $('#delete_modal').data('delete-target', 'department')
+                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa cơ sở này ?')
+                $('#delete_modal').modal('show')
+            })
+        })
+
+        $('#delete_confirm').click(function (e) {
+            e.preventDefault();
+            const delete_target = $('#delete_modal').data('delete-target')
+            if (delete_target === 'room') {
+                let roomId = $('#delete_modal').data('room-id')
+                $(".delete_room_form[data-room-id='"+roomId+"']").submit()
+            } else if (delete_target === 'department') {
+                let departmentId = $('#delete_modal').data('department-id')
+                $(".delete_department_form[data-department-id='"+departmentId+"']").submit()
+            } else $('#delete_modal').modal('hide')
+        })
+    });
+
+</script>
+</body>
 </html>

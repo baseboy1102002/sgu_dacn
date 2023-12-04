@@ -43,7 +43,7 @@ public class EventController {
                               @ModelAttribute("searchDto") SearchDto searchDto, Model model) {
         int pagenum = Integer.parseInt(page.orElseGet(() -> "1"));
         FilterDto filterDto = searchDto.getFilterDto() == null ?
-                new FilterDto("", "", "", "", null, null, false)
+                new FilterDto("", "", "", "", null, null, false, true)
                 : searchDto.getFilterDto();
         searchDto.setFilterDto(filterDto);
         model.addAttribute("searchDto", searchDto);
@@ -62,7 +62,7 @@ public class EventController {
         return "webpage/home";
     }
 
-    @GetMapping(value = {"/", "/my-event/", "/{id}", "/my-event/{id}"})
+    @GetMapping(value = {"/", "/{id}", "/my-event/", "/my-event/{id}"})
     public String getEventDetail(@PathVariable(required = false) Optional<Integer> id, Model model, HttpServletRequest request) {
         if (id.isPresent()) {
             int eventId = id.get();
@@ -72,32 +72,29 @@ public class EventController {
         else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không đủ dữ liệu để xác định sự kiện");
     }
 
-    @GetMapping(value = {"/edit/", "/edit/{id}", "/edit"})
+    @GetMapping(value = {"/edit/{id}", "/edit/", "/edit"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
-    public String getEventEdit(Model model, @PathVariable Optional<Integer> id,
-                               @ModelAttribute("eventDto") EventDto eventDto,
-                               RedirectAttributes redirectAttributes) {
+    public String getEventEdit(Model model, @PathVariable Optional<Integer> id, RedirectAttributes redirectAttributes) {
         model.addAttribute("faculties", facultyService.findAll());
         model.addAttribute("classrooms", classRoomService.findAll());
         model.addAttribute("departments", departmentService.findAll());
         model.addAttribute("rooms", roomService.findAll());
         if (id.isPresent()) {
-            EventDto e = eventService.findById(id.get());
-            if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
+            EventDto eventDto = eventService.findById(id.get());
+            if (LocalDateTime.of(eventDto.getDate(), eventDto.getStartTime()).isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể sửa.");
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "warning");
                 return "redirect:/event";
             }
-            eventDto = eventService.findById(id.get());
             model.addAttribute("editMode", "update");
-            model.addAttribute("CreateOrUpdate", "Cập nhật sự kiện");
+            model.addAttribute("isUpdate", true);
+            model.addAttribute("eventDto", eventDto);
         }
         else {
-            eventDto = new EventDto();
             model.addAttribute("editMode", "create");
-            model.addAttribute("CreateOrUpdate", "Tạo sự kiện mới");
+            model.addAttribute("isUpdate", false);
+            model.addAttribute("eventDto", new EventDto());
         }
-        model.addAttribute("eventDto", eventDto);
         return "webpage/edit-event";
     }
 
@@ -115,7 +112,7 @@ public class EventController {
         return "webpage/my-schedule";
     }
 
-    @GetMapping(value = {"/attend-list/{id}", "/attend-list/"})
+    @GetMapping(value = {"/attend-list/{id}", "/attend-list/", "/attend-list"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String getAttendList(Model model, @PathVariable Optional<Integer> id) {
         if (id.isPresent()) {
@@ -123,6 +120,7 @@ public class EventController {
             model.addAttribute("eventId", eventId);
             List<StudentInfoDto> students = eventService.getAllStudentAttendEvent(eventId);
             model.addAttribute("students", students.isEmpty() ? null:students);
+            model.addAttribute("totalStudent", students.size());
             return "webpage/attend-list";
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
@@ -150,7 +148,7 @@ public class EventController {
         excelExporter.exportExcelFile(response);
     }
 
-    @GetMapping(value = {"/check-attend/{id}", "/check-attend/"})
+    @GetMapping(value = {"/check-attend/{id}", "/check-attend/", "/check-attend"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String getCheckAttendance(Model model, @PathVariable Optional<Integer> id) {
         if (id.isPresent()) {
@@ -162,7 +160,7 @@ public class EventController {
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
-    @PostMapping(value = {"/attend/{id}", "/attend/"})
+    @PostMapping(value = {"/attend/{id}", "/attend/", "/attend"})
     @PreAuthorize("hasAuthority('STUDENT')")
     public String attendEvent(@PathVariable Optional<Integer> id, RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {
@@ -170,19 +168,23 @@ public class EventController {
             EventDto e = eventService.findById(eventId);
             if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể thao tác.");
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "warning");
                 return "redirect:/event";
             }
-            Boolean isAttendSuccess = eventService.attendEvent(eventId);
-            redirectAttributes.addFlashAttribute("message",isAttendSuccess ?
-                    "Đăng ký tham gia sự kiện thành công!" : "Không thể đăng ký, sự kiện bị trùng với lịch trình hiện tại hoặc sự kiện tạm hết chỗ");
-            redirectAttributes.addFlashAttribute("alert", isAttendSuccess ? "success" : "danger");
+            try {
+                eventService.attendEvent(eventId);
+                redirectAttributes.addFlashAttribute("alert", "success");
+                redirectAttributes.addFlashAttribute("message", "Đăng ký tham gia sự kiện thành công!");
+            } catch (CustomErrorException ex) {
+                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("message", ex.getMessage());
+            }
             return "redirect:/event";
-        }
-        else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
+        } else
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
-    @PostMapping(value = {"/dismiss/{id}", "/dismiss/"})
+    @PostMapping(value = {"/dismiss/{id}", "/dismiss/", "/dismiss"})
     @PreAuthorize("hasAuthority('STUDENT')")
     public String dismissEvent(@PathVariable Optional<Integer> id,
                                RedirectAttributes redirectAttributes,
@@ -192,7 +194,7 @@ public class EventController {
             EventDto e = eventService.findById(eventId);
             if (LocalDateTime.of(e.getDate(), e.getStartTime()).isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute("message", "Sự kiện này đã hết hạn, không thể thao tác.");
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "warning");
                 return "redirect:/event";
             }
             eventService.dismissEvent(eventId);
@@ -200,26 +202,31 @@ public class EventController {
             redirectAttributes.addFlashAttribute("message", "Đã rút khỏi sự kiện.");
             String reqURI = request.getHeader("Referer");
             return "redirect:"+reqURI;
-        } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
+        } else
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
     @PostMapping(value = "/edit")
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String saveEvent(@ModelAttribute("eventDto") EventDto eventDto, RedirectAttributes redirectAttributes) {
-        EventDto savedEvent = eventService.saveEvent(eventDto);
-        if (savedEvent != null) {
+        try {
+            EventDto oldEvent = eventDto.getId()!=0 ? eventService.findById(eventDto.getId()):null;
+            EventDto savedEvent = eventService.saveEvent(eventDto);
             int savedEventId = savedEvent.getId();
+            if (savedEvent.getIsUpdateSchedule()) {
+                eventService.sendUpdateScheduleEventEmail(savedEventId, oldEvent, savedEvent);
+            }
             redirectAttributes.addFlashAttribute("message", "Lưu sự kiện thành công!");
             redirectAttributes.addFlashAttribute("alert", "success");
             return "redirect:/event/"+savedEventId;
-        } else {
+        } catch (CustomErrorException e) {
             redirectAttributes.addFlashAttribute("message", "Không thể lưu sự kiện do bị trùng lịch.");
             redirectAttributes.addFlashAttribute("alert", "danger");
             return "redirect:/event/edit";
         }
     }
 
-    @PostMapping(value = {"/delete/{id}", "/delete/"})
+    @PostMapping(value = {"/delete/{id}", "/delete/", "/delete"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String deleteEvent(@PathVariable Optional<Integer> id,
                               RedirectAttributes redirectAttributes,
@@ -238,7 +245,7 @@ public class EventController {
         } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
-    @PostMapping(value = {"check-attend/{id}", "check-attend/"})
+    @PostMapping(value = {"/check-attend/{id}", "/check-attend/", "/check-attend"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
     public String checkAttendance(@PathVariable Optional<Integer> id, @RequestParam String studentCode, RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {

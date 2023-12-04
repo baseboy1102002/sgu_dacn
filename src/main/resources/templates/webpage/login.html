@@ -5,11 +5,22 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" th:href="@{/webpage/bootstrap/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/webpage/fontawesome/css/all.min.css}">
         <link rel="stylesheet" th:href="@{/webpage/customstyled.css}">
         <title>Đăng nhập</title>
         <style>
             body {
               background-color: #F1F6FF;
+            }
+            .input_box {
+                position: relative;
+            }
+            .input_box i {
+                cursor: pointer;
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
             }
         </style>
     </head>
@@ -40,48 +51,37 @@
                 <div class="col-md-6 right-box">
                     <div class="row align-items-center">
                         <div class="header-text mb-4">
+
                             <!--   Alert login error  -->
-                            <div th:if="${param.error}">
-                                <div class="row">
-                                    <div th:class="|alert alert-danger alert-dismissible fade show|" role="alert">
-                                        <span>Xác thực người dùng thất bại</span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                </div>
-                            </div>
+                            <div th:if="${param.error}" class="sw-alert-authen-fail" data-alert="test"></div>
                             <!--   Alert login error  -->
+
                             <!--   Alert   -->
-                            <div th:if="${message != null}">
-                                <div class="row">
-                                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                                        <span th:text="${message}"></span>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                </div>
-                            </div>
+                            <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
                             <!--   Alert   -->
                             <h2>Đăng nhập</h2>
                             <p>Chào mừng bạn quay trở lại</p>
                         </div>
                         <form th:action="@{/login}" method="post">
-                            <div class="input-group mb-3">
+                            <div class="mb-3">
                                 <input type="text" name="username" value="" class="form-control form-control-lg bg-light fs-6" placeholder="Tên đăng nhập">
                             </div>
-                            <div class="input-group mb-1">
+                            <div class="mb-1 input_box">
                                 <input type="password" name="password" value="" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu">
+                                <i class="fa-regular fa-eye" onclick="togglePassword(this)"></i>
                             </div>
-                            <div class="input-group mb-5 d-flex justify-content-between">
+                            <div class="mb-5 d-flex justify-content-between">
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" id="formCheck">
                                     <label for="formCheck" class="form-check-label text-secondary">
                                         <small>Remember Me</small>
                                     </label>
                                 </div>
-<!--                                <div class="forgot">-->
-<!--                                    <small><a href="#">Quên mật khẩu?</a></small>-->
-<!--                                </div>-->
+                                <div class="forgot">
+                                    <small><a href="#">Quên mật khẩu?</a></small>
+                                </div>
                             </div>
-                            <div class="input-group mb-3">
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng nhập</button>
                             </div>
                         </form>
@@ -94,5 +94,40 @@
             </div>
         </div>
         <div th:replace="~{fragments/scripts}"></div>
+        <script th:inline="javascript">
+            function togglePassword(e) {
+                console.log(e.closest('.input_box').querySelector('input'))
+                const ip = e.closest('.input_box').querySelector('input')
+                if (ip.type === "password") {
+                    ip.type = "text";
+                    $(e).removeClass('fa-eye').addClass('fa-eye-slash')
+                } else {
+                    ip.type = "password";
+                    $(e).removeClass('fa-eye-slash').addClass('fa-eye')
+                }
+            }
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+            })
+            $(document).ready(function() {
+                const alertData = $('.sw-alert').data('alert')
+                if(alertData) {
+                    Toast.fire({
+                        icon: alertData,
+                        title: $('.sw-alert').data('message')
+                    })
+                }
+                const alertAuthen = $('.sw-alert-authen-fail').data('alert')
+                if(alertAuthen) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Xác thực người dùng thất bại'
+                    })
+                }
+            })
+        </script>
     </body>
 </html>

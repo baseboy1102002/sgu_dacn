@@ -720,6 +720,10 @@ img {
   margin-bottom: 20px;
 }
 
+.mb-10 {
+  margin-bottom: 10px;
+}
+
 .p-relative {
   position: relative;
 }
@@ -1048,6 +1052,12 @@ body {
   background-image: url(../img/svg/Bulk/Home-white.svg);
   width: 24px;
   height: 24px;
+}
+
+.chart-icon{
+    background-image:url(../img/svg/Bulk/Chart.svg);
+    width:24px;
+    height:24px
 }
 
 .document {
@@ -2636,7 +2646,7 @@ label {
   align-items: center;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  padding: 24px 19px;
+  padding: 12px 10px 12px 7px;
   background-color: #FFFFFF;
   -webkit-box-shadow: 0px 15px 50px rgba(160, 163, 189, 0.1);
   box-shadow: 0px 15px 50px rgba(160, 163, 189, 0.1);
@@ -2656,8 +2666,8 @@ label {
   align-items: center;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   margin-right: 9px;
 }
@@ -2801,7 +2811,7 @@ label {
 
 .top-cat-title p {
   font-weight: 500;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.4px;
   color: #b9b9b9;
@@ -2825,7 +2835,7 @@ label {
   -ms-flex-pack: justify;
   justify-content: space-between;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.4px;
   color: #171717;
@@ -2842,7 +2852,7 @@ label {
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.2;
   letter-spacing: -0.4px;
   color: #b9b9b9;
@@ -3184,6 +3194,14 @@ label {
   font-size: 14px;
   line-height: 2.43;
   color: #d6d7e3;
+}
+
+.my-form-select {
+  border-radius: 8px;
+  border-width: 0;
+  margin-bottom: 15px;
+  padding: 5px 10px;
+  height: 40px;
 }
 
 .form-checkbox {

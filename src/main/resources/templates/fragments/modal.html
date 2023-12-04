@@ -1,15 +1,18 @@
+<html xmlns:th="http://www.thymeleaf.org">
 <div class="modal fade" id="attend_modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Xác nhận tham gia</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5 mx-auto">Xác nhận tham gia</h1>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
+                <div class="col-12 mb-4">
+                    <img th:src="@{/webpage/img/alert/warning.png}">
+                </div>
                 <span>Bạn muốn đăng ký tham gia sự kiện này ?</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary me-5" data-bs-dismiss="modal">Hủy</button>
                 <button id="attend_confirm" type="button" class="btn btn-primary">Xác nhận</button>
             </div>
         </div>
@@ -20,14 +23,16 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Xác nhận rút</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5 mx-auto">Xác nhận rút</h1>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
+                <div class="col-12 mb-4">
+                    <img th:src="@{/webpage/img/alert/warning.png}">
+                </div>
                 <span>Bạn muốn rút khỏi sự kiện này ?</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary me-5" data-bs-dismiss="modal">Hủy</button>
                 <button id="dismiss_confirm" type="button" class="btn btn-primary">Xác nhận</button>
             </div>
         </div>
@@ -38,15 +43,17 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Xác nhận xóa</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5 mx-auto">Xác nhận xóa</h1>
             </div>
-            <div class="modal-body">
-                <span>Bạn muốn xóa bỏ khỏi sự kiện này ?</span>
+            <div class="modal-body text-center">
+                <div class="col-12 mb-4">
+                    <img th:src="@{/webpage/img/alert/warning.png}">
+                </div>
+                <span>Bạn muốn xóa bỏ sự kiện này ?</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button id="delete_confirm" type="button" class="btn btn-primary">Xác nhận</button>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary me-5" data-bs-dismiss="modal">Hủy</button>
+                <button id="delete_confirm" type="button" class="btn btn-danger">Xác nhận</button>
             </div>
         </div>
     </div>

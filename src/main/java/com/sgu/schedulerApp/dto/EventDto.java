@@ -34,10 +34,14 @@ public class EventDto {
     private String classroomCode;
 
 //    for students
-    public Boolean attendstatus;
+    private Boolean attendstatus;
 
 //    for teachers
-    public Boolean createStatus;
+    private Boolean createStatus;
 
-    public Boolean isOutDated;
+//    for render view
+    private Boolean isOutDated;
+
+//    for send mail when update event's schedule
+    private Boolean isUpdateSchedule;
 }

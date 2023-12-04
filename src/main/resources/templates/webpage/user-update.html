@@ -21,15 +21,7 @@
         <div class="container p-4 d-flex flex-column align-items-center">
 
             <!--   Alert   -->
-            <div th:if="${alert != null}">
-                <div class="row">
-                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                        <span sec:authorize="hasAuthority('STUDENT')">Mã số sinh viên đã tồn tại</span>
-                        <span sec:authorize="hasAuthority('TEACHER')">Mã giảng viên đã tồn tại</span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
+            <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
             <!--   Alert   -->
 
             <h3 class="mb-4">Cập nhật thông tin cá nhân</h3>
@@ -49,8 +41,7 @@
                     <label for="user_code" class="form-label" sec:authorize="hasAuthority('STUDENT')">Mã số sinh viên</label>
                     <label for="user_code" class="form-label" sec:authorize="hasAuthority('TEACHER')">Mã giảng viên</label>
                     <input type="text" class="form-control" id="user_code" th:field="*{userCode}" required>
-                    <div class="invalid-feedback" sec:authorize="hasAuthority('STUDENT')">Không bỏ trống mssv</div>
-                    <div class="invalid-feedback" sec:authorize="hasAuthority('TEACHER')">Không bỏ trống mã giảng viên</div>
+                    <div class="invalid-feedback" th:text="${userDto.roleCode}=='STUDENT'?'Không bỏ trống mssv':'Không bỏ trống mã giảng viên'"></div>
                 </div>
                 <div class="row">
                     <div class="col-6 text-center">
@@ -78,6 +69,23 @@
                     form.classList.add('was-validated');
                 }, false)
             })()
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+            })
+
+            $(document).ready(function() {
+                const alertData = $('.sw-alert').data('alert')
+                if(alertData) {
+                    Toast.fire({
+                        icon: alertData,
+                        title: $('.sw-alert').data('message')
+                    })
+                }
+            })
         </script>
     </body>
 </html>

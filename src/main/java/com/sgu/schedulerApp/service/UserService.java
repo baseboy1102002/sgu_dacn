@@ -12,4 +12,10 @@ public interface UserService {
     Boolean changePassword(String oldPassword, String newPassword);
 
     void saveUser(UserDto userDto);
+
+    void setUserTokenByEmail(String token, String email);
+
+    User findByUserToken(String token);
+
+    void resetPassword(User user, String newPassword);
 }

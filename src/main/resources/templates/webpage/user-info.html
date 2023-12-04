@@ -14,76 +14,109 @@
           background-color: #F1F6FF;
         }
     </style>
-    <body>
+    <body th:attr="onload=|generateQrCode('${user.userCode}');|">
         <!--  Header -->
         <div th:replace="fragments/header"></div>
         <!--  Header -->
         <div class="container pt-4">
 
             <!--   Alert   -->
-            <div th:if="${message != null}">
-                <div class="row">
-                    <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                        <span th:text="${message}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
+            <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
             <!--   Alert   -->
 
-                <h3 class="mb-4 text-center">Thông tin tài khoản</h3>
-                <div class="row">
-                    <div class="col col-sm-12 col-md-6 col-lg-4 m-auto">
-                        <div class="card">
-                            <div class="card-body">
+            <h3 class="mb-4 text-center">Thông tin tài khoản</h3>
+            <div class="row">
+                <div class="col col-sm-12 col-md-8 col-lg-6 m-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-3">Tài khoản</div>
+                                <div class="col-9 text-secondary" th:text="${user.username}"></div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-3">Vai trò</div>
+                                <div class="col-9 text-secondary" th:text="${user.roleName}"></div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-3">Họ tên</div>
+                                <div class="col-9 text-secondary" th:text="${user.fullName}"></div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-3">Email</div>
+                                <div class="col-9 text-secondary" th:text="${user.email}"></div>
+                            </div>
+                            <hr>
+                            <th:block sec:authorize="hasAuthority('STUDENT')">
                                 <div class="row">
-                                    <div class="col-3">Tài khoản</div>
-                                    <div class="col-9 text-secondary" th:text="${user.username}"></div>
+                                    <div class="col-3">Mã số sinh viên</div>
+                                    <div class="col-7 text-secondary" th:text="${user.userCode}"></div>
+                                    <div class="col-2 text-center"><button id="qr_btn" class="btn btn-outline-success"><i class="fa-solid fa-qrcode"></i> QR</button></div>
                                 </div>
                                 <hr>
+                            </th:block>
+                            <th:block sec:authorize="hasAuthority('TEACHER')">
                                 <div class="row">
-                                    <div class="col-3">Vai trò</div>
-                                    <div class="col-9 text-secondary" th:text="${user.roleName}"></div>
+                                    <div class="col-3">Mã giảng viên</div>
+                                    <div class="col-9 text-secondary" th:text="${user.userCode}"></div>
                                 </div>
                                 <hr>
-                                <div class="row">
-                                    <div class="col-3">Họ tên</div>
-                                    <div class="col-9 text-secondary" th:text="${user.fullName}"></div>
+                            </th:block>
+                            <div class="row">
+                                <div class="col-6 text-center">
+                                    <a class="btn btn-outline-primary" th:href="@{/user/update-info}"><i class="fa-regular fa-pen-to-square"></i> Sửa thông tin</a>
                                 </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-3">Email</div>
-                                    <div class="col-9 text-secondary" th:text="${user.email}"></div>
-                                </div>
-                                <hr>
-                                <th:block sec:authorize="hasAuthority('STUDENT')">
-                                    <div class="row">
-                                        <div class="col-3">Mã số sinh viên</div>
-                                        <div class="col-9 text-secondary" th:text="${user.userCode}"></div>
-                                    </div>
-                                    <hr>
-                                </th:block>
-                                <th:block sec:authorize="hasAuthority('TEACHER')">
-                                    <div class="row">
-                                        <div class="col-3">Mã giảng viên</div>
-                                        <div class="col-9 text-secondary" th:text="${user.userCode}"></div>
-                                    </div>
-                                    <hr>
-                                </th:block>
-                                <div class="row">
-                                    <div class="col-6 text-center">
-                                        <a class="btn btn-outline-primary" th:href="@{/user/update-info}"><i class="fa-regular fa-pen-to-square"></i> Sửa thông tin</a>
-                                    </div>
-                                    <div class="col-6 text-center">
-                                        <a class="btn btn-outline-primary" th:href="@{/user/change-password}"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
-                                    </div>
+                                <div class="col-6 text-center">
+                                    <a class="btn btn-outline-primary" th:href="@{/user/change-password}"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="modal fade" id="qr_modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="qr_div" class="d-flex justify-content-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div th:replace="~{fragments/scripts}"></div>
+        <script th:src="@{/webpage/plugins/qrcode.min.js}"></script>
+        <script th:inline="javascript">
+            let qr;
+            function generateQrCode(qrcode) {
+                qr = new QRCode("qr_div", qrcode);
+            }
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-start',
+                showConfirmButton: false,
+                timer: 4000,
+            })
+            $(document).ready(function () {
+                const alertData = $('.sw-alert').data('alert')
+                if(alertData) {
+                    Toast.fire({
+                        icon: alertData,
+                        title: $('.sw-alert').data('message')
+                    })
+                }
+
+                $('#qr_btn').click(function (e) {
+                    $('#qr_modal').modal('show')
+                })
+            })
+        </script>
     </body>
 </html>

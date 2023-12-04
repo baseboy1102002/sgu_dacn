@@ -19,4 +19,5 @@ public class UserDto {
     private String fullName;
     private String userCode;
     private String email;
+    private String token;
 }

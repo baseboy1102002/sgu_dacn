@@ -8,6 +8,7 @@ import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import com.sgu.schedulerApp.dto.EventDto;
+import com.sgu.schedulerApp.entity.Event;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,14 +20,15 @@ import java.util.List;
 public class EmailService {
 
     private final String DELETE_EVENT_TEMPLATE_ID = "d-5aec434f0d9d4950a969fe787f563d19";
+    private final String UPDATE_EVENT_TEMPLATE_ID = "d-3dd82ff3ce584f9a816cec0a2c5c6c89";
+    private final String RESET_PASSWORD_TEMPLATE_ID = "d-a11391ecae53454e92088dd919c16847";
     private final String fromEmail = "sgu.event.scheduler@gmail.com";
-    private final String API_KEY = "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";
+    private final String API_KEY = "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";
 
     public void sendEmailsWhenDeleteEvent(List<String> tos, List<String> names, EventDto eventDto) {
         // specify the email details
         Mail mail = new Mail();
         mail.setFrom(new Email(this.fromEmail));
-        mail.setSubject("Thông báo hủy bỏ sự kiện từ SGU_Event_Scheduler");
         mail.setTemplateId(DELETE_EVENT_TEMPLATE_ID);
 
         List<Personalization> personalizations = new ArrayList<>();
@@ -47,27 +49,42 @@ public class EmailService {
         sendEmail(mail);
     }
 
-    public void sendEmailsWhenUpdateEventTimes(List<String> tos, List<String> names, EventDto eventDto) {
+    public void sendEmailsWhenUpdateEventSchedule(List<String> tos, List<String> names, EventDto oldEvent, EventDto newEvent) {
         Mail mail = new Mail();
         mail.setFrom(new Email(this.fromEmail));
-        mail.setSubject("Thông báo điều chỉnh thời gian tổ chức sự kiện từ SGU_Event_Scheduler");
-        mail.setTemplateId(DELETE_EVENT_TEMPLATE_ID);
+        mail.setTemplateId(UPDATE_EVENT_TEMPLATE_ID);
 
         List<Personalization> personalizations = new ArrayList<>();
         for (int i=0; i< tos.size(); i++) {
             Personalization personalization = new Personalization();
             personalization.addTo(new Email(tos.get(i)));
             personalization.addDynamicTemplateData("fullName", names.get(i));
-            personalization.addDynamicTemplateData("eventName", eventDto.getName());
-            personalization.addDynamicTemplateData("eventDate", eventDto.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            personalization.addDynamicTemplateData("eventStartTime", eventDto.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-            personalization.addDynamicTemplateData("eventEndTime", eventDto.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            personalization.addDynamicTemplateData("eventName", oldEvent.getName());
+            personalization.addDynamicTemplateData("eventDateOld", oldEvent.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            personalization.addDynamicTemplateData("eventStartTimeOld", oldEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            personalization.addDynamicTemplateData("eventEndTimeOld", oldEvent.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            personalization.addDynamicTemplateData("eventDateNew", newEvent.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            personalization.addDynamicTemplateData("eventStartTimeNew", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            personalization.addDynamicTemplateData("eventEndTimeNew", newEvent.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
             personalizations.add(personalization);
         }
         for (Personalization personalization: personalizations) {
             mail.addPersonalization(personalization);
         }
 
+        sendEmail(mail);
+    }
+
+    public void sendResetPasswordEmail(String to, String resetLink) {
+        Mail mail = new Mail();
+        mail.setFrom(new Email(this.fromEmail));
+        mail.setTemplateId(RESET_PASSWORD_TEMPLATE_ID);
+
+        Personalization personalization = new Personalization();
+        personalization.addTo(new Email(to));
+        personalization.addDynamicTemplateData("reset-password-link", resetLink);
+
+        mail.addPersonalization(personalization);
         sendEmail(mail);
     }
 
