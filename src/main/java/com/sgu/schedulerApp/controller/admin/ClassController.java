@@ -78,7 +78,7 @@ public class ClassController {
             redirectAttributes.addFlashAttribute("message", "Lưu Lớp học thành công!");
             return  "redirect:/admin/faculty-and-class/edit-class/"+savedClassId;
         } catch (CustomErrorException e) {
-            redirectAttributes.addFlashAttribute("alert", "danger");
+            redirectAttributes.addFlashAttribute("alert", "error");
             redirectAttributes.addFlashAttribute("message", e.getMessage());
             redirectAttributes.addFlashAttribute("classDto", classDto);
             return "redirect:/admin/faculty-and-class/edit-class" + (classDto.getId()!=0 ? "/"+classDto.getId() : "");
@@ -93,7 +93,7 @@ public class ClassController {
                 redirectAttributes.addFlashAttribute("alert", "success");
                 redirectAttributes.addFlashAttribute("message", "Xóa Lớp thành công!");
             } catch (CustomErrorException e) {
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "error");
                 redirectAttributes.addFlashAttribute("message", e.getMessage());
             }
         } else
@@ -110,7 +110,7 @@ public class ClassController {
             redirectAttributes.addFlashAttribute("message", "Lưu Khoa thành công!");
             return  "redirect:/admin/faculty-and-class/edit-faculty/"+facultyId;
         } catch (CustomErrorException ex) {
-            redirectAttributes.addFlashAttribute("alert", "danger");
+            redirectAttributes.addFlashAttribute("alert", "error");
             redirectAttributes.addFlashAttribute("message", ex.getMessage());
             redirectAttributes.addFlashAttribute("facultyDto", facultyDto);
             return "redirect:/admin/faculty-and-class/edit-faculty" + (facultyDto.getId()!=0 ? "/"+facultyDto.getId() : "");
@@ -125,7 +125,7 @@ public class ClassController {
                 redirectAttributes.addFlashAttribute("alert", "success");
                 redirectAttributes.addFlashAttribute("message", "Xóa Khoa thành công!");
             } catch (CustomErrorException ex) {
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "error");
                 redirectAttributes.addFlashAttribute("message", ex.getMessage());
             }
         } else

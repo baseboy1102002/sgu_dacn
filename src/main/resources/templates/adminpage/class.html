@@ -26,14 +26,7 @@
             <div class="container">
 
                 <!--   Alert   -->
-                <div th:if="${message != null}">
-                    <div class="row px-sm-0 px-lg-5">
-                        <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                            <span th:text="${message}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                </div>
+                <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
                 <!--   Alert   -->
 
                 <h2 class="main-title text-center text-uppercase">Quản lý khoa và lớp</h2>
@@ -59,14 +52,12 @@
                 <div class="list-group px-sm-0 px-lg-5">
                     <th:block th:each="f: ${faculties}">
                         <div class="list-group-item d-flex justify-content-between align-items-center mt-3">
-                            <div class="d-flex align-items-center">
-                                <h5 class="d-inline-block fixed-w-200"><p th:text="${f.name}" th:remove="tag"></p><span th:text="${f.code}" class="badge bg-primary ms-3"></span></h5>
-                                <button class="btn btn-sm btn-outline-primary btn_seemore ms-4">
-                                    Ẩn <i class="fa-solid fa-chevron-up"></i>
-                                </button>
-                            </div>
+                            <h5 class="d-inline-block my-text"><p th:text="${f.name}" th:remove="tag"></p><span th:text="${f.code}" class="badge bg-primary ms-3"></span></h5>
                             <div>
-                                <form class="delete_faculty_form" th:data-faculty-id="${f.id}" th:action="@{/admin/faculty-and-class/delete-faculty/{id}(id=${f.id})}" method="post">
+                                <form th:action="@{/admin/faculty-and-class/delete-faculty/{id}(id=${f.id})}" method="post">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn_seemore">
+                                        Ẩn <i class="fa-solid fa-chevron-up"></i>
+                                    </button>
                                     <a class="btn btn-sm btn-primary" th:href="@{/admin/faculty-and-class/edit-class?facultyCode={facultyCode}(facultyCode=${f.code})}">
                                         <i class="fa-solid fa-plus"></i> Tạo Lớp
                                     </a>
@@ -82,9 +73,9 @@
                         <div class="list-group">
                             <th:block th:each="class: ${f.classes}">
                                 <div class="list-group-item d-flex justify-content-between pe-4">
-                                    <div><p th:text="${class.name}" th:remove="tag"></p><span th:text="${class.code}" class="badge bg-primary ms-3"></span></div>
+                                    <div class="my-text"><p th:text="${class.name}" th:remove="tag"></p><span th:text="${class.code}" class="badge bg-primary ms-3"></span></div>
                                     <div>
-                                        <form class="delete_class_form" th:data-class-id="${class.id}" th:action="@{/admin/faculty-and-class/delete-class/{id}(id=${class.id})}" method="post">
+                                        <form th:action="@{/admin/faculty-and-class/delete-class/{id}(id=${class.id})}" method="post">
                                             <a class="btn btn-sm btn-outline-success" th:href="@{/admin/faculty-and-class/edit-class/{id}?facultyCode={facultyCode}(id=${class.id}, facultyCode=${f.code})}">
                                                 <i class="fa-regular fa-pen-to-square"></i> Sửa
                                             </a>
@@ -105,10 +96,6 @@
             <div th:replace="~{fragments/footer-admin}"></div>
             <!-- ! Footer -->
 
-            <!-- ! Modal -->
-            <div th:replace="~{fragments/modal}"></div>
-            <!-- ! Modal -->
-
         </div>
     </div>
 </div>
@@ -127,60 +114,63 @@
         }
     }
 
-    $(".btn_seemore").each(function (index, element) {
-        $(element).click(function (e) {
-            e.preventDefault();
-            if($(this).hasClass("hide"))
-                $(this).html("Ẩn <i class='fa-solid fa-chevron-up'></i>").removeClass("hide");
-            else
-                $(this).html("Hiện <i class='fa-solid fa-chevron-down'></i>").addClass("hide");
-
-            const list_items = getParentElement(element, ".list-group-item").nextElementSibling
-
-            if($(list_items).hasClass("group-item_dp-none"))
-                $(list_items).animate({maxHeight:220},200).removeClass("group-item_dp-none");
-            else
-                $(list_items).animate({maxHeight:0},200).addClass("group-item_dp-none");
-        })
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+    })
+    const confirmDialog = Swal.mixin({
+        showCancelButton: true,
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "Hủy"
     })
 
     $(document).ready(function () {
-        let c = $(".btn_seemore").length;
-        let btn_seemore = $(".btn_seemore")
-        for (let index = c-1; index > 1; index--) {
-            btn_seemore[index].click()
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+            Toast.fire({
+                icon: alertData,
+                title: $('.sw-alert').data('message')
+            })
         }
 
-        $(".delete_class_btn").each(function (index, element) {
-            $(element).on('click', function(e) {
-                let classId = $(getParentElement(element, '.delete_class_form')).data('class-id')
-                $('#delete_modal').data('class-id', classId)
-                $('#delete_modal').data('delete-target', 'class')
-                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa Lớp này ?')
-                $('#delete_modal').modal('show')
+        $(".btn_seemore").each(function (index, element) {
+            $(element).click(function (e) {
+                e.preventDefault();
+                if($(this).hasClass("hide"))
+                    $(this).html("Ẩn <i class='fa-solid fa-chevron-up'></i>").removeClass("hide");
+                else
+                    $(this).html("Hiện <i class='fa-solid fa-chevron-down'></i>").addClass("hide");
+
+                const list_items = getParentElement(element, ".list-group-item").nextElementSibling
+
+                if($(list_items).hasClass("group-item_dp-none"))
+                    $(list_items).animate({maxHeight:220},200).removeClass("group-item_dp-none");
+                else
+                    $(list_items).animate({maxHeight:0},200).addClass("group-item_dp-none");
             })
         })
+        let btn_seemore = $(".btn_seemore")
+        let c = btn_seemore.length;
+        for (let index = c-1; index > 1; index--) {
+            btn_seemore[index].click()
+            console.log(btn_seemore[index])
+        }
 
-        $(".delete_faculty_btn").each(function (index, element) {
+        $(".delete_class_btn, .delete_faculty_btn").each(function (index, element) {
             $(element).on('click', function(e) {
-                let facultyId = $(getParentElement(element, '.delete_faculty_form')).data('faculty-id')
-                $('#delete_modal').data('faculty-id', facultyId)
-                $('#delete_modal').data('delete-target', 'faculty')
-                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa Khoa này ?')
-                $('#delete_modal').modal('show')
+                const form = $(this).closest('form')
+                let confirmStr = $(this).hasClass('delete_class_btn') ? "Bạn có chắc muốn xóa Lớp này ?" : "Bạn có chắc muốn xóa Khoa này ?"
+                confirmDialog.fire({
+                    title: confirmStr,
+                    icon: "warning"
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $(form).submit();
+                    }
+                });
             })
-        })
-
-        $('#delete_confirm').click(function (e) {
-            e.preventDefault();
-            const delete_target = $('#delete_modal').data('delete-target')
-            if (delete_target === 'class') {
-                let classId = $('#delete_modal').data('class-id')
-                $(".delete_class_form[data-class-id='"+classId+"']").submit()
-            } else if (delete_target === 'faculty') {
-                let facultyId = $('#delete_modal').data('faculty-id')
-                $(".delete_faculty_form[data-faculty-id='"+facultyId+"']").submit()
-            } else $('#delete_modal').modal('hide')
         })
     });
 

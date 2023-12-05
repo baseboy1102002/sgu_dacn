@@ -221,7 +221,7 @@ public class EventController {
             return "redirect:/event/"+savedEventId;
         } catch (CustomErrorException e) {
             redirectAttributes.addFlashAttribute("message", "Không thể lưu sự kiện do bị trùng lịch.");
-            redirectAttributes.addFlashAttribute("alert", "danger");
+            redirectAttributes.addFlashAttribute("alert", "error");
             return "redirect:/event/edit";
         }
     }
@@ -255,7 +255,7 @@ public class EventController {
                 redirectAttributes.addFlashAttribute("alert", result.get("alert"));
                 redirectAttributes.addFlashAttribute("message", result.get("message"));
             } catch (CustomErrorException  e) {
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "error");
                 redirectAttributes.addFlashAttribute("message", e.getMessage());
             }
             return "redirect:/event/check-attend/"+eventId;

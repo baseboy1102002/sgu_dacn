@@ -23,7 +23,7 @@
                     <div class="col-lg-9">
                         <div class="row stat-cards">
                             <div class="col-md-6 col-xl-3">
-                                <div class="mb-10">Chọn năm</div>
+                                <div class="mb-10 my-text">Chọn năm</div>
                                 <select class="my-form-select" id="select_year">
                                     <option value="2021">2021</option>
                                     <option value="2022">2022</option>
@@ -33,7 +33,7 @@
                                 </select>
                             </div>
                             <div class="col-md-6 col-xl-3">
-                                <div class="mb-10">Chọn Khoa</div>
+                                <div class="mb-10 my-text">Chọn Khoa</div>
                                 <select class="my-form-select" id="select_faculty" style="width: 100%">
                                     <option selected value="">Tất cả</option>
                                 </select>
@@ -123,7 +123,6 @@
     $('#select_year').on('change', function() {
         let id_khoa =  $('#select_faculty').select2('data')[0].id_khoa
         let data = {'yearNo': this.value, 'facultyCode': $('#select_faculty').val(), 'facultyId': id_khoa?id_khoa:''}
-        console.log(data)
         $.ajax({
             type: "get",
             url: "/api/statistic",
@@ -137,8 +136,7 @@
 
     $('#select_faculty').on('select2:select', function (e) {
         let value = e.params.data
-        let data = {'yearNo': $('#select_year').val(), 'facultyCode': value.id, 'facultyId': value.id_khoa}
-        console.log(data)
+        let data = {'yearNo': $('#select_year').val(), 'facultyCode': value.id, 'facultyId': value.id_khoa ? value.id_khoa:''}
         $.ajax({
             type: "get",
             url: "/api/statistic",
@@ -180,7 +178,7 @@
     }
 </script>
 <!-- Custom scripts -->
-<script th:src="@{/adminpage/js/myScript.js}"></script>
+<script th:src="@{/adminpage/js/dashboard-script.js}"></script>
 </body>
 
 </html>

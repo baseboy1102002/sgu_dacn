@@ -15,10 +15,18 @@ import java.io.Serializable;
 @Embeddable
 public class EventStudentId implements Serializable {
 
-//    @Column(name = "id_sk")
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
     private int eventId;
 
-//    @Column(name = "id_sv")
     private int studentId;
 
 }

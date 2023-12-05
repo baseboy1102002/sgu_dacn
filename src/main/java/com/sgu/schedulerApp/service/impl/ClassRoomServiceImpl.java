@@ -67,6 +67,7 @@ public class ClassRoomServiceImpl implements ClassRoomService {
                 throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Mã Lớp đã tồn tại trong hệ thống.");
             classroom.setStatus(true);
         }
+        classroom.setName(classDto.getName());
         classroom.setCode(classDto.getCode().toUpperCase());
         classroom.setFaculty(facultyRepository.findByCodeAndStatusTrue(classDto.getFacultyCode()));
         Classroom savedClass = classroomRepository.save(classroom);

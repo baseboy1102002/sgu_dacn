@@ -3369,6 +3369,10 @@ label {
   color: #EFF0F6;
 }
 
+.darkmode .my-text{
+color:#eff0f6
+}
+
 .darkmode .stat-cards-item {
   background-color: #222235;
   -webkit-box-shadow: none;

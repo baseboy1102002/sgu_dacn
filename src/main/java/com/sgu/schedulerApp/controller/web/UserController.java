@@ -46,7 +46,7 @@ public class UserController {
         try {
             User user = userService.findByUserToken(token);
         } catch (CustomErrorException e) {
-            model.addAttribute("alert", "danger");
+            model.addAttribute("alert", "error");
             model.addAttribute("message", e.getMessage());
         }
         model.addAttribute("token", token);
@@ -79,7 +79,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("alert", "success");
             return "redirect:/user/info";
         } else {
-            redirectAttributes.addFlashAttribute("alert", "danger");
+            redirectAttributes.addFlashAttribute("alert", "error");
             return "redirect:/user/change-password";
         }
     }
@@ -92,7 +92,7 @@ public class UserController {
             model.addAttribute("message", "Đăng ký tài khoản thành công!");
             return "webpage/login";
         } catch (CustomErrorException e) {
-            model.addAttribute("alert", "danger");
+            model.addAttribute("alert", "error");
             model.addAttribute("message", e.getMessage());
             model.addAttribute("userDto", userDto);
             model.addAttribute("roles", roleService.findAllRoleExceptAdmin());
@@ -100,20 +100,24 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "/forgot-password")
-    public String forgotPassord(@RequestParam String email, HttpServletRequest request, Model model) {
+    @PostMapping(value = "/forget-password")
+    public String forgetPassword(@RequestParam String email, HttpServletRequest request, Model model) {
         String token = RandomString.make(25);
+        System.out.println("----------------------------");
+        System.out.println(email);
         try {
             userService.setUserTokenByEmail(token, email);
-            String resetLink = (request.getRequestURL().toString()).replace(request.getServletPath(), "")+"/reset-password?token="+token;
+            String resetLink = (request.getRequestURL().toString()).replace(request.getServletPath(), "")+"/user/reset-password?token="+token;
             emailService.sendResetPasswordEmail(email, resetLink);
             model.addAttribute("alert", "success");
             model.addAttribute("message", "Gửi thành công yêu cầu reset mật khẩu tới email của bạn. Vui lòng kiểm tra");
         } catch (CustomErrorException e) {
-            model.addAttribute("alert", "danger");
+            System.out.println("----------------------------");
+            System.out.println("EXCEPTION");
+            model.addAttribute("alert", "error");
             model.addAttribute("message", e.getMessage());
         }
-        return "webpage/sign-up";
+        return "webpage/login";
     }
 
     @PostMapping(value = "/reset-password")
@@ -125,7 +129,7 @@ public class UserController {
             model.addAttribute("message", "Reset mật khẩu mới thành công!");
             return "webpage/login";
         } catch (CustomErrorException e) {
-            model.addAttribute("alert", "danger");
+            model.addAttribute("alert", "error");
             model.addAttribute("message", e.getMessage());
             return "webpage/reset-password";
         }

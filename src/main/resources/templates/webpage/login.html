@@ -78,7 +78,7 @@
                                     </label>
                                 </div>
                                 <div class="forgot">
-                                    <small><a href="#">Quên mật khẩu?</a></small>
+                                    <small><a href="#" id="forget_password_btn">Quên mật khẩu?</a></small>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -90,11 +90,45 @@
                         </div>
                     </div>
                 </div>
-
+            </div>
+            <div class="modal fade" id="forget_password_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5 mx-auto">Email khôi phục</h1>
+                        </div>
+                        <div class="modal-body">
+                            <span>Điền email của bạn vào form dưới đây. Hệ thống sẽ gửi mã khôi phục mật khẩu đến mail của bạn:</span>
+                            <form method="post" th:action="@{/user/forget-password}" class="needs-validation" novalidate>
+                                <div class="col-12 mb-4">
+                                    <input type="email" class="form-control" name="email" value="" required>
+                                    <div class="invalid-feedback">Vui lòng điền email của bạn</div>
+                                </div>
+                                <div class="col-12 mb-2 text-center">
+                                    <button type="submit" class="btn btn-primary">Gửi mã xác nhận vào email này</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div th:replace="~{fragments/scripts}"></div>
         <script th:inline="javascript">
+            (() => {
+                'use strict';
+
+                const form = document.querySelector('.needs-validation')
+
+                form.addEventListener('submit', (event) => {
+                    if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false)
+            })()
+
             function togglePassword(e) {
                 console.log(e.closest('.input_box').querySelector('input'))
                 const ip = e.closest('.input_box').querySelector('input')
@@ -112,6 +146,7 @@
                 showConfirmButton: false,
                 timer: 4000,
             })
+
             $(document).ready(function() {
                 const alertData = $('.sw-alert').data('alert')
                 if(alertData) {
@@ -127,7 +162,10 @@
                         title: 'Xác thực người dùng thất bại'
                     })
                 }
-            })
+                $('#forget_password_btn').click(function (e) {
+                    $('#forget_password_modal').modal('show')
+                })
+            });
         </script>
     </body>
 </html>

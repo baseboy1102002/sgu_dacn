@@ -26,14 +26,7 @@
                 <div class="container">
 
                     <!--   Alert   -->
-                    <div th:if="${message != null}">
-                        <div class="row px-lg-5 mx-lg-5">
-                            <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                                <span th:text="${message}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
                     <!--   Alert   -->
 
                     <h4 class="main-title text-center text-uppercase" th:text="${isUpdate? 'Chỉnh sửa cơ sở':'Tạo cơ sở'}"></h4>
@@ -82,6 +75,23 @@
                 form.classList.add('was-validated');
             }, false)
         })()
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+        })
+
+        $(document).ready(function () {
+            const alertData = $('.sw-alert').data('alert')
+            if(alertData) {
+                Toast.fire({
+                    icon: alertData,
+                    title: $('.sw-alert').data('message')
+                })
+            }
+        });
 
     </script>
 </body>

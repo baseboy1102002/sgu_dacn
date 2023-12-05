@@ -9,10 +9,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  $("#select_faculty").select2({
-      data: faculty_data,
-  })
-
   feather.replace();
 
   (function () {

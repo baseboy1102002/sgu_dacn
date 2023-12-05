@@ -132,7 +132,7 @@
       let events_data = $.map(array, function (obj) {
         let startTime = new Date(obj.date+' '+obj.startTime+' UTC+7').toISOString()
         let endTime = new Date(obj.date+' '+obj.endTime+' UTC+7').toISOString()
-        let url = [[@{/event/}]] + obj.id
+        let url = [[@{/event/my-event/}]] + obj.id
         return {"id": obj.id, "title":obj.departmentCode+'.'+obj.roomCode, "start": startTime, "end": endTime, "url": url};
       });
 

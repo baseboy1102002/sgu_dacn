@@ -26,14 +26,7 @@
             <div class="container">
 
                 <!--   Alert   -->
-                <div th:if="${message != null}">
-                    <div class="row px-sm-0 px-lg-5">
-                        <div th:class="|alert alert-${alert} alert-dismissible fade show|" role="alert">
-                            <span th:text="${message}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                </div>
+                <div th:if="${message != null}" class="sw-alert" th:attr="data-alert=${alert},data-message=${message}"></div>
                 <!--   Alert   -->
 
                 <h2 class="main-title text-center text-uppercase">Quản lý phòng học</h2>
@@ -59,14 +52,12 @@
                 <div class="list-group px-sm-0 px-lg-5">
                     <th:block th:each="d: ${departments}">
                         <div class="list-group-item d-flex justify-content-between align-items-center mt-3">
-                            <div class="d-flex align-items-center">
-                                <h5 class="d-inline-block fixed-w-200"><div th:text="${d.name}" th:remove="tag"></div><span th:text="${d.code}" class="badge bg-primary ms-3"></span></h5>
-                                <button class="btn btn-sm btn-outline-primary btn_seemore ms-4">
-                                    Ẩn <i class="fa-solid fa-chevron-up"></i>
-                                </button>
-                            </div>
+                            <h5 class="d-inline-block my-text"><div th:text="${d.name}" th:remove="tag"></div><span th:text="${d.code}" class="badge bg-primary ms-3"></span></h5>
                             <div>
-                                <form class="delete_department_form" th:data-department-id="${d.id}" th:action="@{/admin/departments-and-rooms/delete-department/{id}(id=${d.id})}" method="post">
+                                <form th:action="@{/admin/departments-and-rooms/delete-department/{id}(id=${d.id})}" method="post">
+                                    <button type="button" class="btn btn-sm btn-outline-primary btn_seemore">
+                                        Ẩn <i class="fa-solid fa-chevron-up"></i>
+                                    </button>
                                     <a class="btn btn-sm btn-primary" th:href="@{/admin/departments-and-rooms/edit-room?departmentCode={departmentCode}(departmentCode=${d.code})}">
                                         <i class="fa-solid fa-plus"></i> Tạo phòng
                                     </a>
@@ -82,9 +73,9 @@
                         <div class="list-group">
                             <th:block th:each="room: ${d.rooms}">
                                 <div class="list-group-item d-flex justify-content-between pe-4">
-                                    <div th:text="${room.code}"></div>
+                                    <div th:text="${room.code}" class="my-text"></div>
                                     <div>
-                                        <form class="delete_room_form" th:data-room-id="${room.id}" th:action="@{/admin/departments-and-rooms/delete-room/{id}(id=${room.id})}" method="post">
+                                        <form th:action="@{/admin/departments-and-rooms/delete-room/{id}(id=${room.id})}" method="post">
                                             <a class="btn btn-sm btn-outline-success" th:href="@{/admin/departments-and-rooms/edit-room/{id}?departmentCode={departmentCode}(id=${room.id}, departmentCode=${d.code})}">
                                                 <i class="fa-regular fa-pen-to-square"></i> Sửa
                                             </a>
@@ -105,10 +96,6 @@
             <div th:replace="~{fragments/footer-admin}"></div>
             <!-- ! Footer -->
 
-            <!-- ! Modal -->
-            <div th:replace="~{fragments/modal}"></div>
-            <!-- ! Modal -->
-
         </div>
     </div>
 </div>
@@ -127,61 +114,64 @@
         }
     }
 
-    $(".btn_seemore").each(function (index, element) {
-        $(element).click(function (e) {
-            e.preventDefault();
-            if($(this).hasClass("hide"))
-                $(this).html("Ẩn <i class='fa-solid fa-chevron-up'></i>").removeClass("hide");
-            else
-                $(this).html("Hiện <i class='fa-solid fa-chevron-down'></i>").addClass("hide");
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+    })
 
-            const list_items = getParentElement(element, ".list-group-item").nextElementSibling
-
-            if($(list_items).hasClass("group-item_dp-none"))
-                $(list_items).animate({maxHeight:220},200).removeClass("group-item_dp-none");
-            else
-                $(list_items).animate({maxHeight:0},200).addClass("group-item_dp-none");
-        })
+    const confirmDialog = Swal.mixin({
+        showCancelButton: true,
+        confirmButtonText: "Xác nhận",
+        cancelButtonText: "Hủy"
     })
 
     $(document).ready(function () {
-        let c = $(".btn_seemore").length;
-        let btn_seemore = $(".btn_seemore")
-        for (let index = c-1; index > 1; index--) {
-            console.log(btn_seemore[index])
-            btn_seemore[index].click()
+        const alertData = $('.sw-alert').data('alert')
+        if(alertData) {
+            Toast.fire({
+                icon: alertData,
+                title: $('.sw-alert').data('message')
+            })
         }
 
-        $(".delete_room_btn").each(function (index, element) {
-            $(element).on('click', function(e) {
-                let roomId = $(getParentElement(element, '.delete_room_form')).data('room-id')
-                $('#delete_modal').data('room-id', roomId)
-                $('#delete_modal').data('delete-target', 'room')
-                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa phòng này ?')
-                $('#delete_modal').modal('show')
+        $(".btn_seemore").each(function (index, element) {
+            $(element).click(function (e) {
+                e.preventDefault();
+                if($(this).hasClass("hide"))
+                    $(this).html("Ẩn <i class='fa-solid fa-chevron-up'></i>").removeClass("hide");
+                else
+                    $(this).html("Hiện <i class='fa-solid fa-chevron-down'></i>").addClass("hide");
+
+                const list_items = getParentElement(element, ".list-group-item").nextElementSibling
+
+                if($(list_items).hasClass("group-item_dp-none"))
+                    $(list_items).animate({maxHeight:220},200).removeClass("group-item_dp-none");
+                else
+                    $(list_items).animate({maxHeight:0},200).addClass("group-item_dp-none");
             })
         })
+        let btn_seemore = $(".btn_seemore")
+        let c = btn_seemore.length;
+        for (let index = c-1; index > 1; index--) {
+            btn_seemore[index].click()
+            console.log(btn_seemore[index])
+        }
 
-        $(".delete_department_btn").each(function (index, element) {
+        $(".delete_room_btn, .delete_department_btn").each(function (index, element) {
             $(element).on('click', function(e) {
-                let departmentId = $(getParentElement(element, '.delete_department_form')).data('department-id')
-                $('#delete_modal').data('department-id', departmentId)
-                $('#delete_modal').data('delete-target', 'department')
-                $('#delete_modal .modal-body span').text('Bạn có chắc muốn xóa cơ sở này ?')
-                $('#delete_modal').modal('show')
+                const form = $(this).closest('form')
+                let confirmStr = $(this).hasClass('delete_room_btn') ? "Bạn có chắc muốn xóa phòng này ?" : "Bạn có chắc muốn xóa cơ sở này ?"
+                confirmDialog.fire({
+                    title: confirmStr,
+                    icon: "warning"
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $(form).submit();
+                    }
+                });
             })
-        })
-
-        $('#delete_confirm').click(function (e) {
-            e.preventDefault();
-            const delete_target = $('#delete_modal').data('delete-target')
-            if (delete_target === 'room') {
-                let roomId = $('#delete_modal').data('room-id')
-                $(".delete_room_form[data-room-id='"+roomId+"']").submit()
-            } else if (delete_target === 'department') {
-                let departmentId = $('#delete_modal').data('department-id')
-                $(".delete_department_form[data-department-id='"+departmentId+"']").submit()
-            } else $('#delete_modal').modal('hide')
         })
     });
 
