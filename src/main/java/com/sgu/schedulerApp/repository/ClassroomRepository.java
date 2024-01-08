@@ -12,7 +12,8 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
 
     Classroom findByCodeAndStatusTrue(String code);
 
-    @Query(value = "select c from Classroom c where (:classCode is null or c.code like %:classCode%) and c.faculty.code=:facultyCode and c.status=true")
+    @Query(value = "select c from Classroom c where (:classCode is null or c.code like %:classCode%)" +
+            " and c.faculty.code=:facultyCode and c.status=true")
     List<Classroom> findByKeywordAndDepartmentCode(String classCode, String facultyCode);
 
     boolean existsByCodeAndStatusTrue(String classCode);

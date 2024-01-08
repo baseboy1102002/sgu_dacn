@@ -176,12 +176,11 @@ public class EventController {
                 redirectAttributes.addFlashAttribute("alert", "success");
                 redirectAttributes.addFlashAttribute("message", "Đăng ký tham gia sự kiện thành công!");
             } catch (CustomErrorException ex) {
-                redirectAttributes.addFlashAttribute("alert", "danger");
+                redirectAttributes.addFlashAttribute("alert", "error");
                 redirectAttributes.addFlashAttribute("message", ex.getMessage());
             }
             return "redirect:/event";
-        } else
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
+        } else throw new CustomErrorException(HttpStatus.BAD_REQUEST, "Không đủ dữ liệu để xác định sự kiện");
     }
 
     @PostMapping(value = {"/dismiss/{id}", "/dismiss/", "/dismiss"})
@@ -247,7 +246,8 @@ public class EventController {
 
     @PostMapping(value = {"/check-attend/{id}", "/check-attend/", "/check-attend"})
     @PreAuthorize("hasAnyAuthority('TEACHER', 'ADMIN')")
-    public String checkAttendance(@PathVariable Optional<Integer> id, @RequestParam String studentCode, RedirectAttributes redirectAttributes) {
+    public String checkAttendance(@PathVariable Optional<Integer> id, @RequestParam String studentCode,
+                                  RedirectAttributes redirectAttributes) {
         if (id.isPresent()) {
             int eventId = id.get();
             try {

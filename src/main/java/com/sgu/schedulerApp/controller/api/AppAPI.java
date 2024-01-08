@@ -33,7 +33,8 @@ public class AppAPI {
     }
 
     @GetMapping(value = "/statistic")
-    public ResponseEntity<Object> getStatisticData(@RequestParam String yearNo, @RequestParam String facultyCode, @RequestParam String facultyId) {
+    public ResponseEntity<Object> getStatisticData(@RequestParam String yearNo, @RequestParam String facultyCode,
+                                                   @RequestParam String facultyId) {
         long totalEventHeld = eventService.countTotalEventHeld(yearNo, facultyCode.isBlank() ? null:facultyCode);
         long totalEnroll = eventService.countTotalEnroll(yearNo, facultyCode.isBlank() ? null:facultyCode);
         List<StatisticDto> statisticData = eventService.getStatisticForAdminDashboard(yearNo, facultyId.isBlank() ? null:facultyId);

@@ -88,7 +88,8 @@ public class EventServiceImpl implements EventService {
                 eventStudent.setCheckAttended(false);
                 eventStudent.setEventStudentId(new EventStudentId(eventId, studentId));
                 eventStudentRepository.save(eventStudent);
-            } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không thể tham gia do sự kiện này trùng với lịch trình của bạn.");
+            } else throw new CustomErrorException(HttpStatus.NOT_FOUND,
+                    "Không thể tham gia do sự kiện này trùng với lịch trình của bạn.");
         } else throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy sự kiện với id:"+eventId);
     }
 
@@ -137,14 +138,16 @@ public class EventServiceImpl implements EventService {
             event = optionalEvent.get();
             if (checkEventTimesHasChange(event, eventDto)) {
                 if (checkValidSaveEvent(eventDto)) {
-                    throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
+                    throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE,
+                            "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
                 } else {
                     isScheduleUpdated = true;
                 }
             }
         } else {
             if (checkValidSaveEvent(eventDto))
-                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
+                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE,
+                        "Không thể lưu sự kiện do thời điểm tổ chức bị trùng với một sự kiện khác trong hệ thống.");
             event = new Event();
             Object principal =  SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             int createdUserId = ((MyUserDetails) principal).getUser().getId();

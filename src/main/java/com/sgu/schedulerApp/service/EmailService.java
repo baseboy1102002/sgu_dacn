@@ -26,7 +26,6 @@ public class EmailService {
     private final String API_KEY = "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";
 
     public void sendEmailsWhenDeleteEvent(List<String> tos, List<String> names, EventDto eventDto) {
-        // specify the email details
         Mail mail = new Mail();
         mail.setFrom(new Email(this.fromEmail));
         mail.setTemplateId(DELETE_EVENT_TEMPLATE_ID);

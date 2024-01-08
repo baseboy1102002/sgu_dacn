@@ -97,7 +97,8 @@ public class DepartmentServiceImpl implements DepartmentService {
                 deleteD.getRooms().forEach(r->r.setStatus(false));
                 departmentRepository.save(deleteD);
             } else
-                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể xóa cơ sở nảy do có ít nhất môt sự kiện đã được đăng ký tổ chức sắp tới");
+                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE,
+                        "Không thể xóa cơ sở nảy do có ít nhất môt sự kiện đã được đăng ký tổ chức sắp tới");
         } else
             throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy cơ sở với id:"+id);
     }
@@ -105,6 +106,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private boolean checkValidDeleteDepartment(int departmentId) {
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();
-        return departmentRepository.existsByIdAndRooms_Events_DateGreaterThanOrRooms_Events_DateEqualsAndRooms_Events_StartTimeGreaterThanEqual(departmentId, currentDate, currentDate, currentTime);
+        return departmentRepository.existsByIdAndRooms_Events_DateGreaterThanOrRooms_Events_DateEqualsAndRooms_Events_StartTimeGreaterThanEqual(
+                departmentId, currentDate, currentDate, currentTime);
     }
 }

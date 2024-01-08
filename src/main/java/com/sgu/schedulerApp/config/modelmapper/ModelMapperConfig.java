@@ -32,7 +32,8 @@ public class ModelMapperConfig {
                     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                     Object principal = authentication.getPrincipal();
                     if (principal instanceof MyUserDetails) {
-                        Set<String> currentUserRole = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+                        Set<String> currentUserRole = authentication.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
                         if (currentUserRole.contains("STUDENT"))
                             userId = ((MyUserDetails) principal).getUser().getStudentInfo().getId();
                         else userId = 0;
@@ -50,7 +51,8 @@ public class ModelMapperConfig {
                     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                     Object principal = authentication.getPrincipal();
                     if (principal instanceof MyUserDetails) {
-                        Set<String> currentUserRole = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+                        Set<String> currentUserRole = authentication.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
                         if (currentUserRole.contains("TEACHER"))
                             userId = ((MyUserDetails) principal).getUser().getId();
                         else userId = 0;

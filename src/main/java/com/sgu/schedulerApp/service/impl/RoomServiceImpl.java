@@ -82,11 +82,13 @@ public class RoomServiceImpl implements RoomService {
     }
 
     private boolean checkValidSaveRoom(RoomDto roomDto) {
-        return roomRepository.existsByCodeAndDepartment_CodeAndStatusTrue(roomDto.getCode(), roomDto.getDepartmentCode());
+        return roomRepository.existsByCodeAndDepartment_CodeAndStatusTrue(
+                roomDto.getCode(), roomDto.getDepartmentCode());
     }
 
     private boolean checkRoomHasChange(Room oldRoom, RoomDto newRoom) {
-        return !( oldRoom.getCode().equals(newRoom.getCode()) && oldRoom.getDepartment().getCode().equals(newRoom.getDepartmentCode()) );
+        return !( oldRoom.getCode().equals(newRoom.getCode()) &&
+                oldRoom.getDepartment().getCode().equals(newRoom.getDepartmentCode()) );
     }
 
     @Override
@@ -99,7 +101,8 @@ public class RoomServiceImpl implements RoomService {
                 deletedRoom.setStatus(false);
                 roomRepository.save(deletedRoom);
             } else
-                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE, "Không thể xóa phòng nảy do có ít nhất môt sự kiện đã được đăng ký tổ chức sắp tới");
+                throw new CustomErrorException(HttpStatus.NOT_ACCEPTABLE,
+                        "Không thể xóa phòng nảy do có ít nhất môt sự kiện đã được đăng ký tổ chức sắp tới");
         } else
             throw new CustomErrorException(HttpStatus.NOT_FOUND, "Không tìm thấy phòng với id:"+id);
     }
@@ -107,6 +110,7 @@ public class RoomServiceImpl implements RoomService {
     private boolean checkValidDeleteRoom(int roomId) {
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();
-        return roomRepository.existsByIdAndEvents_DateGreaterThanOrEvents_DateEqualsAndEvents_StartTimeGreaterThanEqual(roomId, currentDate, currentDate, currentTime);
+        return roomRepository.existsByIdAndEvents_DateGreaterThanOrEvents_DateEqualsAndEvents_StartTimeGreaterThanEqual(
+                roomId, currentDate, currentDate, currentTime);
     }
 }
